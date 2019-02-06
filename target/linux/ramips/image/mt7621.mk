@@ -240,10 +240,9 @@ define Device/mir3p
   BLOCKSIZE := 128k
   PAGESIZE := 2048
   KERNEL_SIZE := 4096k
-  KERNEL := $(KERNEL_DTB) | uImage lzma
   IMAGE_SIZE := 32768k
   UBINIZE_OPTS := -E 5
-  IMAGES := sysupgrade.tar kernel1.bin rootfs0.bin
+  IMAGES := kernel1.bin rootfs0.bin
   IMAGE/kernel1.bin := append-kernel
   IMAGE/rootfs0.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
   IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
@@ -251,7 +250,7 @@ define Device/mir3p
   SUPPORTED_DEVICES += R3P
   DEVICE_PACKAGES := \
   	kmod-usb-core kmod-usb3 kmod-usb-ledtrig-usbport \
-  	wpad-mini uboot-envtools
+  	wpad-basic uboot-envtools
 endef
 TARGET_DEVICES += mir3p
 
