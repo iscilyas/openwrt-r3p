@@ -15,7 +15,6 @@
 		led-running = &led_status_blue;
 		led-upgrade = &led_status_blue;
 	};
-
 	memory@0 {
 		device_type = "memory";
 		reg = <0x0 0x1c000000>, <0x20000000 0x04000000>;
@@ -24,7 +23,6 @@
 	chosen {
 		bootargs = "console=ttyS0,115200n8";
 	};
-
 	gpio-leds {
 		compatible = "gpio-leds";
 
@@ -45,22 +43,22 @@
 
 		wan_amber {
 			label = "mir3p:amber:wan";
-			gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio0 14 GPIO_ACTIVE_LOW>;
 		};
 
 		lan1_amber {
-			label = "mir3p:amber:lan1";
-			gpios = <&gpio0 14 GPIO_ACTIVE_LOW>;
+			label = "mir3p:amber:lan3";
+			gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
 		};
 
 		lan2_amber {
 			label = "mir3p:amber:lan2";
-			gpios = <&gpio0 15 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio0 16 GPIO_ACTIVE_LOW>;
 		};
 
 		lan3_amber {
-			label = "mir3p:amber:lan3";
-			gpios = <&gpio0 16 GPIO_ACTIVE_LOW>;
+			label = "mir3p:amber:lan1";
+			gpios = <&gpio0 15 GPIO_ACTIVE_LOW>;
 		};
 	};
 
@@ -167,6 +165,12 @@
 			reg = <0x200000 0x400000>;
 		};
 
+		firmware {
+			label = "firmware";
+			compatible = "denx,uimage";
+			reg = <0x600000 0xf980000>;
+		};
+
 		partition@600000 {
 			label = "kernel";
 			reg = <0x600000 0x400000>;
@@ -179,7 +183,6 @@
 		 * - overlay (used as ubi overlay in stock fw)
 		 * resulting in 245,5MiB space for packages.
 		 */
-
 		partition@a00000 {
 			label = "ubi";
 			reg = <0xa00000 0xf580000>;
@@ -191,7 +194,7 @@
 	status = "okay";
 };
 
-/* mt76 doesn't support 7616 yet...
+/* mt76 doesn't support 7615 yet... */
 &pcie0 {
 	mt76@0,0 {
 		device_type = "pci";
@@ -211,7 +214,6 @@
 		ieee80211-freq-limit = <5000000 6000000>;
 	};
 };
-*/
 
 &ethernet {
 	mtd-mac-address = <&factory 0xe000>;

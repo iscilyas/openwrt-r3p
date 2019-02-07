@@ -237,20 +237,17 @@ TARGET_DEVICES += k2p
 
 define Device/mir3p
   DTS := MIR3P
+  IMAGE_SIZE := $(ralink_default_fw_size_32M)
   BLOCKSIZE := 128k
   PAGESIZE := 2048
   KERNEL_SIZE := 4096k
-  IMAGE_SIZE := 32768k
   UBINIZE_OPTS := -E 5
-  IMAGES := kernel1.bin rootfs0.bin
+  IMAGES += kernel1.bin rootfs0.bin
   IMAGE/kernel1.bin := append-kernel
   IMAGE/rootfs0.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
-  IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
   DEVICE_TITLE := Xiaomi Mi Router 3 Pro
-  SUPPORTED_DEVICES += R3P
   DEVICE_PACKAGES := \
-  	kmod-usb-core kmod-usb3 kmod-usb-ledtrig-usbport \
-  	wpad-basic uboot-envtools
+  	kmod-usb3 kmod-usb-ledtrig-usbport wpad-basic uboot-envtools
 endef
 TARGET_DEVICES += mir3p
 
