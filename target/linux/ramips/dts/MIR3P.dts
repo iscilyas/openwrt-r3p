@@ -165,17 +165,17 @@
 			reg = <0x200000 0x400000>;
 		};
 
-		firmware {
+		partition@600000 {
 			label = "firmware";
 			compatible = "denx,uimage";
 			reg = <0x600000 0xf980000>;
 		};
-
+/*
 		partition@600000 {
 			label = "kernel";
 			reg = <0x600000 0x400000>;
 		};
-
+*/
 		/* ubi partition is the result of squashing
 		 * next consecutive stock partitions:
 		 * - rootfs0 (rootfs partition for stock kernel0),
@@ -183,10 +183,12 @@
 		 * - overlay (used as ubi overlay in stock fw)
 		 * resulting in 245,5MiB space for packages.
 		 */
+/*
 		partition@a00000 {
 			label = "ubi";
 			reg = <0xa00000 0xf580000>;
 		};
+*/
 	};
 };
 
