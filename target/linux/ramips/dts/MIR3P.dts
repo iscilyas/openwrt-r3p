@@ -46,6 +46,13 @@
 			gpios = <&gpio0 14 GPIO_ACTIVE_LOW>;
 		};
 
+		/*
+		 * Yes, the GPIO numbering scheme is really this
+		 * illogical:
+		 * 	lan3: gpio 13
+		 *	lan2: gpio 16
+		 *	lan1: gpio 15
+		 */
 		lan1_amber {
 			label = "mir3p:amber:lan3";
 			gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
@@ -134,18 +141,6 @@
 			read-only;
 		};
 
-		/*
-		 * This is a Convenience Partition for ease of restoring
-		 * stock firmware. The user can use 'cat' to string
-		 * together /dev/mtd[8-11] on stock, and then write that
-		 * back to 'firmware' to restore to stock.
-		 */
-		/* XXX skip this until it at least boots
-		firmware@200000 {
-			label = "firmware";
-			reg = <0x200000 0xfd80000>;
-		};
-		*/
 		/* uboot expects to find kernels at 0x200000 & 0x600000
 		 * referred to as system 1 & system 2 respectively.
 		 * a kernel is considered suitable for handing control over
@@ -165,30 +160,16 @@
 			reg = <0x200000 0x400000>;
 		};
 
+		/*
+		 * The remaining space is free for us to play with.
+		 * "kernel" and "ubi" partitions are combined as "firmware"
+		 * and split at boot-time
+		 */
 		partition@600000 {
 			label = "firmware";
 			compatible = "denx,uimage";
-			reg = <0x600000 0xf980000>;
+			reg = <0x600000 0xf580000>; /* XXX was 0xf980000 */
 		};
-/*
-		partition@600000 {
-			label = "kernel";
-			reg = <0x600000 0x400000>;
-		};
-*/
-		/* ubi partition is the result of squashing
-		 * next consecutive stock partitions:
-		 * - rootfs0 (rootfs partition for stock kernel0),
-		 * - rootfs1 (rootfs partition for stock failsafe kernel1),
-		 * - overlay (used as ubi overlay in stock fw)
-		 * resulting in 245,5MiB space for packages.
-		 */
-/*
-		partition@a00000 {
-			label = "ubi";
-			reg = <0xa00000 0xf580000>;
-		};
-*/
 	};
 };
 
