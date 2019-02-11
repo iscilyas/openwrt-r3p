@@ -1,0 +1,213 @@
+/dts-v1/;
+
+#include "mt7621.dtsi"
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+
+/ {
+	compatible = "xiaomi,mir3p", "mediatek,mt7621-soc";
+	model = "Xiaomi Mi Router 3 Pro";
+
+	aliases {
+		led-boot = &led_status_blue;
+		led-failsafe = &led_status_blue;
+		led-running = &led_status_blue;
+		led-upgrade = &led_status_blue;
+	};
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x1c000000>, <0x20000000 0x04000000>;
+	};
+
+	chosen {
+		bootargs = "console=ttyS0,115200n8";
+	};
+	gpio-leds {
+		compatible = "gpio-leds";
+
+		status_red {
+			label = "mir3p:red:status";
+			gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
+		};
+
+		led_status_blue: status_blue {
+			label = "mir3p:blue:status";
+			gpios = <&gpio0 8 GPIO_ACTIVE_LOW>;
+		};
+
+		status_yellow {
+			label = "mir3p:yellow:status";
+			gpios = <&gpio0 10 GPIO_ACTIVE_LOW>;
+		};
+
+		wan_amber {
+			label = "mir3p:amber:wan";
+			gpios = <&gpio0 14 GPIO_ACTIVE_LOW>;
+		};
+
+		/*
+		 * Yes, the GPIO numbering scheme is really this
+		 * illogical:
+		 * 	lan3: gpio 13
+		 *	lan2: gpio 16
+		 *	lan1: gpio 15
+		 */
+		lan1_amber {
+			label = "mir3p:amber:lan3";
+			gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
+		};
+
+		lan2_amber {
+			label = "mir3p:amber:lan2";
+			gpios = <&gpio0 16 GPIO_ACTIVE_LOW>;
+		};
+
+		lan3_amber {
+			label = "mir3p:amber:lan1";
+			gpios = <&gpio0 15 GPIO_ACTIVE_LOW>;
+		};
+	};
+
+	gpio-keys-polled {
+		compatible = "gpio-keys-polled";
+		poll-interval = <20>;
+
+		reset {
+			label = "reset";
+			gpios = <&gpio0 18 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_RESTART>;
+		};
+	};
+
+	reg_usb_vbus: reg_usb_vbus {
+		compatible = "regulator-fixed";
+		regulator-name = "usb_vbus";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio0 12 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+};
+
+&xhci {
+	vbus-supply = <&reg_usb_vbus>;
+};
+
+&nand {
+	status = "okay";
+
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		partition@0 {
+			label = "Bootloader";
+			reg = <0x0 0x40000>;
+			read-only;
+		};
+
+		partition@40000 {
+			label = "Config";
+			reg = <0x40000 0x40000>;
+		};
+
+		partition@80000 {
+			label = "Bdata";
+			reg = <0x80000 0x40000>;
+			read-only;
+		};
+
+		factory: partition@c0000 {
+			label = "Factory";
+			reg = <0x0c0000 0x40000>;
+			read-only;
+		};
+
+		partition@100000 {
+			label = "crash";
+			reg = <0x100000 0x40000>;
+		};
+
+		partition@140000 {
+			label = "crash_syslog";
+			reg = <0x140000 0x80000>;
+		};
+
+		partition@1c0000 {
+			label = "reserved0";
+			reg = <0x1c0000 0x40000>;
+			read-only;
+		};
+
+		/* uboot expects to find kernels at 0x200000 & 0x600000
+		 * referred to as system 1 & system 2 respectively.
+		 * a kernel is considered suitable for handing control over
+		 * if its linux magic number exists & uImage CRC are correct.
+		 * If either of those conditions fail, a matching sys'n'_fail flag
+		 * is set in uboot env & a restart performed in the hope that the
+		 * alternate kernel is okay.
+		 * if neither kernel checksums ok and both are marked failed, system 2
+		 * is booted anyway.
+		 *
+		 * Note uboot's tftp flash install writes the transferred
+		 * image to both kernel partitions.
+		 */
+
+		partition@200000 {
+			label = "kernel_stock";
+			reg = <0x200000 0x400000>;
+		};
+
+		/*
+		 * The remaining space is free for us to play with.
+		 * "kernel" and "ubi" partitions are combined as "firmware"
+		 * and split at boot-time
+		 */
+		partition@600000 {
+			label = "firmware";
+			compatible = "denx,uimage";
+			reg = <0x600000 0xf980000>;
+		};
+	};
+};
+
+&pcie {
+	status = "okay";
+};
+
+/* mt76 doesn't support 7615 yet... */
+&pcie0 {
+	mt76@0,0 {
+		device_type = "pci";
+		compatible = "pci14c3,7615";
+		reg = <0x0000 0 0 0 0>;
+		mediatek,mtd-eeprom = <&factory 0x0000>;
+		ieee80211-freq-limit = <2400000 2500000>;
+	};
+};
+
+&pcie1 {
+	mt76@0,1 {
+		device_type = "pci";
+		compatible = "pci14c3,7615";
+		reg = <0x0000 0 0 0 0>;
+		mediatek,mtd-eeprom = <&factory 0x8000>;
+		ieee80211-freq-limit = <5000000 6000000>;
+	};
+};
+
+&ethernet {
+	mtd-mac-address = <&factory 0xe000>;
+	mediatek,portmap = "llllw";
+};
+
+&pinctrl {
+	state_default: pinctrl0 {
+		gpio {
+			ralink,group = "jtag", "uart2", "uart3", "wdt";
+			ralink,function = "gpio";
+		};
+	};
+};
