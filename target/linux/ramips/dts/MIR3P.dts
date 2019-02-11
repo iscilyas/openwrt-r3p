@@ -119,7 +119,7 @@
 			read-only;
 		};
 
-		factory: partition@c00000 {
+		factory: partition@c0000 {
 			label = "Factory";
 			reg = <0x0c0000 0x40000>;
 			read-only;
@@ -168,7 +168,7 @@
 		partition@600000 {
 			label = "firmware";
 			compatible = "denx,uimage";
-			reg = <0x600000 0xf580000>; /* XXX was 0xf980000 */
+			reg = <0x600000 0xf980000>;
 		};
 	};
 };
