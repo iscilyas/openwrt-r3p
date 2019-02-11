@@ -178,6 +178,7 @@
 };
 
 /* mt76 doesn't support 7615 yet... */
+/*
 &pcie0 {
 	mt76@0,0 {
 		device_type = "pci";
@@ -197,6 +198,7 @@
 		ieee80211-freq-limit = <5000000 6000000>;
 	};
 };
+*/
 
 &ethernet {
 	mtd-mac-address = <&factory 0xe000>;
