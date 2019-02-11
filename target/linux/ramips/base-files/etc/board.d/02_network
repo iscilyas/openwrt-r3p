@@ -33,7 +33,6 @@ ramips_setup_interfaces()
 	case $board in
 	11acnas|\
 	d-team,newifi-d2|\
-	dir-615-h1|\
 	w2914nsv2|\
 	zbt-we2026)
 		ucidef_add_switch "switch0" \
@@ -234,7 +233,6 @@ ramips_setup_interfaces()
 	skylab,skw92a|\
 	tplink,c20-v4|\
 	tplink,c50-v3|\
-	tplink,c50-v4|\
 	tplink,tl-mr3420-v5|\
 	tplink,tl-wr842n-v5|\
 	tl-wr840n-v4|\
