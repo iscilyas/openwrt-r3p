@@ -174,28 +174,8 @@
 };
 
 &pcie {
+	/* mt76 doesn't support 7615 yet... */
 	status = "okay";
-};
-
-/* mt76 doesn't support 7615 yet... */
-&pcie0 {
-	mt76@0,0 {
-		device_type = "pci";
-		compatible = "pci14c3,7615";
-		reg = <0x0000 0 0 0 0>;
-		mediatek,mtd-eeprom = <&factory 0x0000>;
-		ieee80211-freq-limit = <2400000 2500000>;
-	};
-};
-
-&pcie1 {
-	mt76@0,1 {
-		device_type = "pci";
-		compatible = "pci14c3,7615";
-		reg = <0x0000 0 0 0 0>;
-		mediatek,mtd-eeprom = <&factory 0x8000>;
-		ieee80211-freq-limit = <5000000 6000000>;
-	};
 };
 
 &ethernet {

@@ -244,10 +244,7 @@ define Device/mir3p
   IMAGE_SIZE := $(ralink_default_fw_size_32M)
   DEVICE_TITLE := Xiaomi Mi Router 3 Pro
   IMAGES += factory.bin
-#  IMAGES += kernel1.bin rootfs0.bin factory.bin
-#  IMAGE/kernel1.bin := append-kernel
-#  IMAGE/rootfs0.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
-#  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
   IMAGE/factory.bin := append-kernel | pad-to $$$$(BLOCKSIZE) | append-ubi | check-size $$$$(IMAGE_SIZE)
   DEVICE_PACKAGES := \
   	kmod-usb3 kmod-usb-ledtrig-usbport wpad-basic uboot-envtools
