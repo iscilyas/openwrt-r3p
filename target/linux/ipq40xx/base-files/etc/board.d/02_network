@@ -12,7 +12,8 @@ ipq40xx_setup_interfaces()
 	local board="$1"
 
 	case "$board" in
-	8dev,jalapeno)
+	8dev,jalapeno|\
+	alfa-network,ap120c-ac)
 		ucidef_set_interfaces_lan_wan "eth0" "eth1"
 		;;
 	asus,map-ac2200|\
@@ -32,6 +33,10 @@ ipq40xx_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0u@eth0" "1:lan" "2:lan" "3:lan" "4:lan"
 		;;
+	avm,fritzbox-7530)
+		ucidef_add_switch "switch0" \
+			"0u@eth0" "1:lan" "2:lan" "3:lan" "4:lan"
+		;;
 	compex,wpj428)
 		ucidef_set_interface_lan "eth0 eth1"
 		;;
@@ -46,6 +51,12 @@ ipq40xx_setup_interfaces()
 		ucidef_set_interfaces_lan_wan "eth0" "eth1"
 		ucidef_add_switch "switch0" \
 			"0u@eth0" "3:lan" "4:lan"
+		;;
+	qxwlan,e2600ac-c1 |\
+	qxwlan,e2600ac-c2)
+		ucidef_set_interfaces_lan_wan "eth0" "eth1"
+		ucidef_add_switch "switch0" \
+			"0u@eth0" "3:lan" "4:lan" "0u@eth1" "5:wan"
 		;;
 	*)
 		echo "Unsupported hardware. Network interfaces not initialized"
