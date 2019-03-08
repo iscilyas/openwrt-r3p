@@ -1,0 +1,16 @@
+Index: mt7615e/mt_wifi/embedded/include/rt_config.h
+===================================================================
+--- mt7615e.orig/mt_wifi/embedded/include/rt_config.h
++++ mt7615e/mt_wifi/embedded/include/rt_config.h
+@@ -66,9 +66,11 @@
+ #include "mlme.h"
+ /*#include "rtmp_cmd.h" */
+ 
+#include "qm.h"
++#include "mcu/mt_cmd.h"
+ #include "rtmp.h"
++#include "hif/mt_hif_pci.h"
+ #include "security/sec.h"
+ #include "chlist.h"
+ #include "spectrum.h"
+

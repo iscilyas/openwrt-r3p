@@ -180,7 +180,7 @@ ramips_setup_interfaces()
 		;;
 	xiaomi,mir3p)
 		ucidef_add_switch "switch0" \
-			"1:lan:3" "2:lan:2" "3:lan:1" "4:wan" "6t@eth0"
+			"1:lan:3" "2:lan:2" "3:lan:1" "4:wan" "6@eth0"
 		;;
 	mir3g)
 		ucidef_add_switch "switch0" \

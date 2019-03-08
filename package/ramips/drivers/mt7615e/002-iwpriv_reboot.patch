@@ -1,0 +1,13 @@
+Index: mt7615e/mt_wifi/embedded/hw_ctrl/hw_ctrl_basic.c
+===================================================================
+--- mt7615e.orig/mt_wifi/embedded/hw_ctrl/hw_ctrl_basic.c
++++ mt7615e/mt_wifi/embedded/hw_ctrl/hw_ctrl_basic.c
+@@ -170,7 +170,7 @@ static VOID HwCtrlCmdHandler(RTMP_ADAPTE
+ 		if(cmdqelmt->NeedWait)
+ 		{
+ 			RTMP_OS_COMPLETE(&cmdqelmt->ack_done);
+-		}
++		}else
+ 
+ 		if(!cmdqelmt->NeedWait || cmdqelmt->status == HWCTRL_STATUS_TIMEOUT)
+ 		{
