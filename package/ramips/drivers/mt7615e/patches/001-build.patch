@@ -282,3 +282,106 @@ Index: mt7615e/mt_wifi/embedded/include/l1profile.h
  INDEX2=MT7615\n\
  INDEX2_profile_path=/etc/Wireless/WIFI3/RT2870AP.dat\n\
  INDEX2_EEPROM_offset=0x4000\n\
+
+Index: mt7615e/mt_wifi/embedded/include/cfg80211.h
+===================================================================
+--- mt7615e.orig/mt_wifi/embedded/include/cfg80211.h
++++ mt7615e/mt_wifi/embedded/include/cfg80211.h
+@@ -36,7 +36,7 @@
+ typedef struct __CFG80211_CB {
+ 
+ 	/* we can change channel/rate information on the fly so we backup them */
+-	struct ieee80211_supported_band Cfg80211_bands[IEEE80211_NUM_BANDS];
++	struct ieee80211_supported_band Cfg80211_bands[NUM_NL80211_BANDS];
+ 	struct ieee80211_channel *pCfg80211_Channels;
+ 	struct ieee80211_rate *pCfg80211_Rates;
+ 
+Index: mt7615e/mt_wifi/embedded/include/cfg80211extr.h
+===================================================================
+--- mt7615e.orig/mt_wifi/embedded/include/cfg80211extr.h
++++ mt7615e/mt_wifi/embedded/include/cfg80211extr.h
+@@ -34,7 +34,7 @@
+ #endif /* RT_CFG80211_DEBUG */
+ 
+ /* CFG_TODO */
+-#include "wfa_p2p.h"
++//#include "wfa_p2p.h"
+ 
+ #define RT_CFG80211_REGISTER(__pDev, __pNetDev)								\
+ 	CFG80211_Register(__pDev, __pNetDev);
+@@ -66,7 +66,7 @@
+ 
+ #define RT_CFG80211_SCAN_END(__pAd, __FlgIsAborted)							\
+ 	CFG80211_ScanEnd((VOID *)__pAd, __FlgIsAborted);
+-#define RT_CFG80211_REINIT(__pAd)											\
++#define RT_CFG80211_REINIT(__pAd,__wdev)											\
+ 	CFG80211_SupBandReInit((VOID *)__pAd, (VOID *)__wdev);
+ 
+ #define RT_CFG80211_RFKILL_STATUS_UPDATE(_pAd, _active)					\
+
+Index: mt7615e/mt_wifi/embedded/common/rt_channel.c
+===================================================================
+--- mt7615e.orig/mt_wifi/embedded/common/rt_channel.c
++++ mt7615e/mt_wifi/embedded/common/rt_channel.c
+@@ -1606,12 +1606,12 @@
+ 
+ 		if ((pAd->CommonCfg.bIEEE80211H == 1) &&
+ 			(pAd->CommonCfg.RDDurRegion == FCC) &&
+-			(pAd->Dot11_H.bDFSIndoor == 1)) {
++			(pAd->Dot11_H->bDFSIndoor == 1)) {
+ 			if (RESTRICTION_BAND_1(pAd, channel, bw))
+ 				continue;
+ 		} else if ((pAd->CommonCfg.bIEEE80211H == 1) &&
+ 				   (pAd->CommonCfg.RDDurRegion == FCC) &&
+-				   (pAd->Dot11_H.bDFSIndoor == 0)) {
++				   (pAd->Dot11_H->bDFSIndoor == 0)) {
+ 			if ((channel >= 100) && (channel <= 140))
+ 				continue;
+ 		}
+@@ -1698,7 +1698,8 @@
+ 				else
+ 					regulatoryDomain = pChRegion->op_class_region;
+ 
+-				offset = FillChList(pAd, &pChDesp[i], offset, increment, regulatoryDomain, PhyMode);
++				offset = FillChList(pAd, &pChDesp[i], offset, increment, regulatoryDomain,
++					pAd->ApCfg.MBSSID[MAIN_MBSSID].wdev.PhyMode);
+ 			}
+ 		}
+ 	}
+
+Index: mt7615e/mt_wifi/embedded/mgmt/mgmt_entrytb.c
+===================================================================
+--- mt7615e.orig/mt_wifi/embedded/mgmt/mgmt_entrytb.c
++++ mt7615e/mt_wifi/embedded/mgmt/mgmt_entrytb.c
+@@ -1126,7 +1126,7 @@
+ #ifdef RT_CFG80211_SUPPORT
+ 
+ 
+-		if (bCfgSendEvent && pEntry && !IS_ENTRY_NONE(pEntry) && IS_ENTRY_CLIENT(pEntry)) {
++		if (pEntry && !IS_ENTRY_NONE(pEntry) && IS_ENTRY_CLIENT(pEntry)) {
+ 			if (RTMP_CFG80211_HOSTAPD_ON(pAd)
+ 			   )
+ 				CFG80211_ApStaDelSendEvent(pAd, TmpAddrForIndicate, pEntry->wdev->if_dev);
+
+Index: mt7615e/mt_wifi/os/linux/cfg80211/cfg80211_rx.c
+===================================================================
+--- mt7615e.orig/mt_wifi/os/linux/cfg80211/cfg80211_rx.c
++++ mt7615e/mt_wifi/os/linux/cfg80211/cfg80211_rx.c
+@@ -70,6 +70,8 @@
+ 		else if (ieee80211_is_deauth(mgmt->frame_control))
+ 			MTWF_LOG(DBG_CAT_RX, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("CFG80211_PKT: %s Deauth Frame on %d\n", preStr, pAd->LatchRfRegs.Channel));
+ 		else if (ieee80211_is_action(mgmt->frame_control)) {
++			MTWF_LOG(DBG_CAT_RX, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("CFG80211_PKT: %s Frame Control on %d. But Frame Control is broken!\n", preStr, pAd->LatchRfRegs.Channel));
++#if 0
+ 			PP2P_PUBLIC_FRAME pFrame = (PP2P_PUBLIC_FRAME)pData;
+ 
+ 			if ((pFrame->p80211Header.FC.SubType == SUBTYPE_ACTION) &&
+@@ -133,6 +135,7 @@
+ 
+ 			else
+ 				MTWF_LOG(DBG_CAT_RX, DBG_SUBCAT_ALL, DBG_LVL_INFO, ("CFG80211_PKT: %s ACTION Frame with Channel%d\n", preStr, pAd->LatchRfRegs.Channel));
++#endif
+ 		} else
+ 			MTWF_LOG(DBG_CAT_RX, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("CFG80211_PKT: %s UNKOWN MGMT FRAME TYPE\n", preStr));
+ 	} else
+

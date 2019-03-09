@@ -97,23 +97,23 @@ config MT7615E_MULTI_INF_SUPPORT
 	bool
 	default y if !MT7615E_FIRST_IF_NONE && !MT7615E_SECOND_IF_NONE
 
-config MT7615E_WIRELESS_EXT
+config WIRELESS_EXT
 	bool
 	default y
 
-config MT7615E_WEXT_SPY
+config WEXT_SPY
 	bool
 	default y
 
-config MT7615E_WEXT_PRIV
+config WEXT_PRIV
 	bool
 	default y
 
 config MT7615E_WIFI_BASIC_FUNC
 	bool "Basic Functions"
-	select MT7615E_WIRELESS_EXT
-	select MT7615E_WEXT_SPY
-	select MT7615E_WEXT_PRIV
+	select WIRELESS_EXT
+	select WEXT_SPY
+	select WEXT_PRIV
 
 config MT7615E_DOT11_N_SUPPORT
 	bool "802.11n support"
@@ -128,7 +128,7 @@ config MT7615E_DOT11_VHT_AC
 config MT7615E_G_BAND_256QAM_SUPPORT
 	bool "2.4G 256QAM support"
 	depends on MT7615E_WIFI_DRIVER
-		depends on MT7615E_DOT11_VHT_AC
+	depends on MT7615E_DOT11_VHT_AC
 	default y
 
 config MT7615E_BRCM_256QAM_SUPPORT
@@ -426,9 +426,9 @@ endchoice
 config MT7615E_MT_AP_SUPPORT
 	tristate "Ralink RT2860 802.11n AP support"
 #	depends on NET_RADIO
-	select MT7615E_WIRELESS_EXT
-	select MT7615E_WEXT_SPY
-	select MT7615E_WEXT_PRIV
+	select WIRELESS_EXT
+	select WEXT_SPY
+	select WEXT_PRIV
 
 config MT7615E_WDS_SUPPORT
 	bool "WDS"
@@ -485,7 +485,7 @@ config MT7615E_MAC_REPEATER_SUPPORT
 #config CFG80211_SUPPORT
 #	bool "CFG80211"
 #	depends on MT_AP_SUPPORT
-#	default n
+#	default y
 
 config MT7615E_CON_WPS_SUPPORT
 	bool "Concurrent WPS Support"

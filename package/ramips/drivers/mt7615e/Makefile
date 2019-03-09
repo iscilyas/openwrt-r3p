@@ -30,7 +30,8 @@ PKG_KCONFIG:= \
 	RALINK_MT7603E MU_RA_SUPPORT CON_WPS_SUPPORT VOW_SUPPORT BAND_STEERING TXOP_ARBITER  \
 	CFG_SUPPORT_DYNAMIC_TXOP WIFI_MODE_BOTH WIFI_RLT_MAC RLT_MAC WIFI_RTMP_MAC RTMP_MAC WIFI_MT_MAC \
 	MT_MAC CHIP_MT7603E CHIP_MT7615E MT_MAC RATE_ADAPTION SUPPORT_OPENWRT SDK_USER_LIGHTY \
-	MUMIMO_SUPPORT MU_RA_SUPPORT LED_CONTROL_SUPPORT RA_HW_NAT RA_HW_NAT_WIFI_NEW_ARCH WIFI_SPECTRUM_SUPPORT
+	MUMIMO_SUPPORT MU_RA_SUPPORT LED_CONTROL_SUPPORT RA_HW_NAT RA_HW_NAT_WIFI_NEW_ARCH WIFI_SPECTRUM_SUPPORT \
+	CFG80211_SUPPORT
 
 PKG_CONFIG_DEPENDS:=$(foreach c, $(PKG_KCONFIG),$(if $(CONFIG_$c),CONFIG_$(c)))
 
@@ -52,6 +53,9 @@ define KernelPackage/mt7615e/config
 endef
 
 define Build/Compile
+	@echo "Build config: "
+	echo $(foreach c, $(PKG_KCONFIG),CONFIG_$(c)=$(CONFIG_$(c)))
+	@echo "Build config done."
 	#-mv $(PKG_BUILD_DIR)/wifi_driver $(PKG_BUILD_DIR)/mt_wifi
 	#-mkdir $(PKG_BUILD_DIR)/mt_wifi_ap
 	cp $(PKG_BUILD_DIR)/mt_wifi/os/linux/Makefile.mt_wifi_ap $(PKG_BUILD_DIR)/mt_wifi_ap/Makefile
@@ -60,14 +64,14 @@ define Build/Compile
 		CROSS_COMPILE="$(TARGET_CROSS)" \
 		ARCH="$(LINUX_KARCH)" \
 		SUBDIRS="$(PKG_BUILD_DIR)/mt_wifi_ap" \
-		CONFIG_CHIP_MT7615E=y CONFIG_MT_MAC=y \
 		$(foreach c, $(PKG_KCONFIG),$(if $(CONFIG_MT7615E_$c),CONFIG_$(c)=$(CONFIG_MT7615E_$(c)))) \
+		$(foreach c, $(PKG_KCONFIG),$(if $(CONFIG_$c),CONFIG_$(c)=$(CONFIG_$(c)))) \
 		modules
 endef
 
 define KernelPackage/mt7615e/install
 	$(INSTALL_DIR) $(1)/etc/init.d/
-	$(INSTALL_BIN) ./files/mt7615e $(1)/etc/init.d/
+	#$(INSTALL_BIN) ./files/mt7615e $(1)/etc/init.d/
 	$(INSTALL_DIR) $(1)/lib/firmware/
 	$(INSTALL_BIN) ./files/mt7615e.eeprom.bin $(1)/lib/firmware/
 	$(INSTALL_DIR) $(1)/etc/wireless/mt7615e/

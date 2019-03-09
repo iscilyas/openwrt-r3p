@@ -1,9 +1,9 @@
-config MT7615E_MT_AP_SUPPORT
-	tristate "MTK AP support"
+config MT7615E_MT_AP_SUPPORT2
+	tristate "MTK AP support2"
 #	depends on MT7615E_NET_RADIO
-	select MT7615E_WIRELESS_EXT
-	select MT7615E_WEXT_SPY
-	select MT7615E_WEXT_PRIV
+	select WIRELESS_EXT
+	select WEXT_SPY
+	select WEXT_PRIV
 
 config MT7615E_WDS_SUPPORT
 	bool "WDS"
@@ -81,7 +81,7 @@ config MT7615E_MAP_SUPPORT
 #	depends on MT7615E_MT_AP_SUPPORT
 #	default n
 
-config MT7615E_CFG80211_SUPPORT
+config CFG80211_SUPPORT
 	bool "CFG80211"
 	depends on MT7615E_MT_AP_SUPPORT
 	default y
