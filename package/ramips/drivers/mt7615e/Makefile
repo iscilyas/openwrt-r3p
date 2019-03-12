@@ -32,6 +32,8 @@ PKG_KCONFIG:= \
 	MT_MAC CHIP_MT7603E CHIP_MT7615E MT_MAC RATE_ADAPTION SUPPORT_OPENWRT SDK_USER_LIGHTY \
 	MUMIMO_SUPPORT MU_RA_SUPPORT LED_CONTROL_SUPPORT RA_HW_NAT RA_HW_NAT_WIFI_NEW_ARCH WIFI_SPECTRUM_SUPPORT
 
+PKG_KCONFIG += $(file < configs.txt)
+
 PKG_CONFIG_DEPENDS:=$(foreach c, $(PKG_KCONFIG),$(if $(CONFIG_$c),CONFIG_$(c)))
 
 include $(INCLUDE_DIR)/package.mk
@@ -48,7 +50,8 @@ endef
 
 define KernelPackage/mt7615e/config
 #source "$(SOURCE)/config.in-4.4"
-	source "$(SOURCE)/config.in"
+#source "$(SOURCE)/config.in"
+	source "$(SOURCE)/Kconfig.mt_wifi"
 endef
 
 define Build/Compile
@@ -60,25 +63,28 @@ define Build/Compile
 		CROSS_COMPILE="$(TARGET_CROSS)" \
 		ARCH="$(LINUX_KARCH)" \
 		SUBDIRS="$(PKG_BUILD_DIR)/mt_wifi_ap" \
-		CONFIG_CHIP_MT7615E=y CONFIG_MT_MAC=y \
-		$(foreach c, $(PKG_KCONFIG),$(if $(CONFIG_MT7615E_$c),CONFIG_$(c)=$(CONFIG_MT7615E_$(c)))) \
+		$(foreach c, $(PKG_KCONFIG),$(if $(CONFIG_$c),CONFIG_$(c)=$(CONFIG_$(c)))) \
 		modules
 endef
 
+WIRELESS_DIR=etc/wireless/mt7615e/
 define KernelPackage/mt7615e/install
 	$(INSTALL_DIR) $(1)/etc/init.d/
 	$(INSTALL_BIN) ./files/mt7615e $(1)/etc/init.d/
 	$(INSTALL_DIR) $(1)/lib/firmware/
 	$(INSTALL_BIN) ./files/mt7615e.eeprom.bin $(1)/lib/firmware/
-	$(INSTALL_DIR) $(1)/etc/wireless/mt7615e/
-	echo $(PKG_SOURCE) > $(1)/etc/wireless/version
+	$(INSTALL_DIR) $(1)/$(WIRELESS_DIR)
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mt_wifi/txpwr/sku_tables/7615_SingleSKU_1.dat $(1)/$(WIRELESS_DIR)/SingleSKU.dat ; \
+	echo $(PKG_SOURCE) > $(1)/$(WIRELESS_DIR)/version
 
-	if [ "$$(CONFIG_MT7615E_RT_FIRST_CARD)" = "7615" ] || [ "$$(CONFIG_MT7615E_RT_FIRST_CARD)" = "7615e" ]; then \
-		$(INSTALL_BIN) ./files/mt7615e.1.dat $(1)/etc/wireless/mt7615e/ ; \
+	if [ "$$(CONFIG_RT_FIRST_CARD)" = "7615" ] || [ "$$(CONFIG_RT_FIRST_CARD)" = "7615e" ]; then \
+		cat $(PKG_BUILD_DIR)/wlan_cfg/mt7621/MT7615_1_ap.dat | sed 's/SSID1=.*/SSID1=openwrt-r3p/g ; s/WirelessMode=.*/WirelessMode=9/g ; s/Channel=.*/Channel=6/g ; s/E2pAccessMode=.*/E2pAccessMode=2/g ; s/FixedTxMode=.*/FixedTxMode=HT/g' > ./files/24g.dat ; \
+		$(INSTALL_BIN) ./files/24g.dat $(1)/$(WIRELESS_DIR)/mt7615e.1.dat ; \
 		$(INSTALL_BIN) ./files/mt7615e.1.eeprom.bin $(1)/lib/firmware/ ; \
 	fi
-	if [ "$$(CONFIG_MT7615E_RT_SECOND_CARD)" = "7615" ] || [ "$$(CONFIG_MT7615E_RT_SECOND_CARD)" = "7615e" ]; then \
-		$(INSTALL_BIN) ./files/mt7615e.2.dat $(1)/etc/wireless/mt7615e/ ; \
+	if [ "$$(CONFIG_RT_SECOND_CARD)" = "7615" ] || [ "$$(CONFIG_RT_SECOND_CARD)" = "7615e" ]; then \
+		cat $(PKG_BUILD_DIR)/wlan_cfg/mt7621/MT7615_1_ap.dat | sed 's/SSID1=.*/SSID1=openwrt-r3p-5G/g ; s/WirelessMode=.*/WirelessMode=14/g ; s/Channel=.*/Channel=136/g ; s/E2pAccessMode=.*/E2pAccessMode=2/g' > ./files/5g.dat ; \
+		$(INSTALL_BIN) ./files/5g.dat $(1)/$(WIRELESS_DIR)/mt7615e.2.dat ; \
 		$(INSTALL_BIN) ./files/mt7615e.2.eeprom.bin $(1)/lib/firmware/ ; \
 	fi
 endef
