@@ -10,13 +10,14 @@ PKG_NAME:=mt7615e
 P4REV:=
 #PKG_VERSION:=MT7615_LinuxAP_V4.4.0.2_20160228
 #PKG_SOURCE:=MT7615_LinuxAP_V4.4.0.2_20160228.tar.bz2
-PKG_VERSION:=MT7622_7615_SoftAP_v5.0.2.0_20180430
-PKG_SOURCE:=MT7622_7615_SoftAP_v5.0.2.0_20180430.tar.xz
-PKG_SOURCE_URL:=http://localhost/
+#PKG_VERSION:=MT7622_7615_SoftAP_v5.0.2.0_20180430
+#PKG_SOURCE:=MT7622_7615_SoftAP_v5.0.2.0_20180430.tar.xz
+PKG_VERSION:=MT7615_LinuxAP_V4.4.2.1_20170829.tar.bz2
+PKG_SOURCE:=MT7615_LinuxAP_V4.4.2.1_20170829.tar.bz2
 PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/$(PKG_NAME)
 PKG_KCONFIG:= \
 	AP_SUPPORT RT_FIRST_CARD RT_SECOND_CARD RT_FIRST_IF_RF_OFFSET RT_SECOND_IF_RF_OFFSET \
-	MT_WIFI WIFI_BASIC_FUNC MT_WIFI_PATH FIRST_IF_NONE FIRST_IF_EEPROM_FLASH RIRST_IF_EEPROM_EFUSE \
+	MT_WIFI WIFI_BASIC_FUNC MT_WIFI_PATH FIRST_IF_NONE FIRST_IF_EEPROM_FLASH FIRST_IF_EEPROM_EFUSE \
 	RT_FIRST_CARD_EEPROM SECOND_IF_NONE SECOND_IF_EEPROM_FLASH SECOND_IF_EEPROM_PROM \
 	SECOND_IF_EEPROM_EFUSE RT_SECOND_CARD_EEPROM MULTI_INF_SUPPORT WIFI_BASIC_FUNC \
 	WIRELESS_EXT WEXT_SPY WEXT_PRIV DOT11_N_SUPPORT DOT11_VHT_AC WIFI_DRIVER G_BAND_256QAM_SUPPORT \
@@ -27,11 +28,12 @@ PKG_KCONFIG:= \
 	UAPSD RLT_MAC RLT_BBP RLT_RF RTMP_MAC RTMP_BBP RTMP_RF RTMP_PCI_SUPPORT RTMP_USB_SUPPORT \
 	RTMP_RBUS_SUPPORT WIFI_MODE_AP WIFI_MODE_STA WIRELESS_EXT WEXT_SPY WEXT_PRIV WDS_SUPPORT \
 	MBSS_SUPPORT APCLI_SUPPORT APCLI_CERT_SUPPORT MAC_REPEATER_SUPPORT RALINK_RT6352 RALINK_MT7620 \
-	RALINK_MT7603E MU_RA_SUPPORT CON_WPS_SUPPORT VOW_SUPPORT BAND_STEERING TXOP_ARBITER  \
+	RALINK_MT7621 RALINK_MT7603E MU_RA_SUPPORT CON_WPS_SUPPORT VOW_SUPPORT BAND_STEERING TXOP_ARBITER  \
 	CFG_SUPPORT_DYNAMIC_TXOP WIFI_MODE_BOTH WIFI_RLT_MAC RLT_MAC WIFI_RTMP_MAC RTMP_MAC WIFI_MT_MAC \
 	MT_MAC CHIP_MT7603E CHIP_MT7615E MT_MAC RATE_ADAPTION SUPPORT_OPENWRT SDK_USER_LIGHTY \
 	MUMIMO_SUPPORT MU_RA_SUPPORT LED_CONTROL_SUPPORT RA_HW_NAT RA_HW_NAT_WIFI_NEW_ARCH WIFI_SPECTRUM_SUPPORT \
-	CFG80211_SUPPORT
+	CFG80211_SUPPORT RA_NAT_NONE
+PKG_KCONFIG += $(file < configs.txt)
 
 PKG_CONFIG_DEPENDS:=$(foreach c, $(PKG_KCONFIG),$(if $(CONFIG_$c),CONFIG_$(c)))
 
@@ -48,16 +50,19 @@ define KernelPackage/mt7615e
 endef
 
 define KernelPackage/mt7615e/config
-#source "$(SOURCE)/config.in-4.4"
-	source "$(SOURCE)/config.in"
+	source "$(SOURCE)/Kconfig.mt_wifi"
 endef
 
 define Build/Compile
 	@echo "Build config: "
 	echo $(foreach c, $(PKG_KCONFIG),CONFIG_$(c)=$(CONFIG_$(c)))
 	@echo "Build config done."
-	#-mv $(PKG_BUILD_DIR)/wifi_driver $(PKG_BUILD_DIR)/mt_wifi
-	#-mkdir $(PKG_BUILD_DIR)/mt_wifi_ap
+	-mv $(PKG_BUILD_DIR)/wifi_driver $(PKG_BUILD_DIR)/mt_wifi
+	-mkdir $(PKG_BUILD_DIR)/mt_wifi_ap
+	#mkdir $(PKG_BUILD_DIR)/mt_wifi/eeprom/ePAeLNA
+	#cp $(PKG_BUILD_DIR)/mt_wifi/eeprom/MT7615E1_EEPROM.bin $(PKG_BUILD_DIR)/mt_wifi/eeprom/ePAeLNA/MT7615_EEPROM1.bin
+	#cp $(PKG_BUILD_DIR)/mt_wifi/eeprom/MT7615E1_EEPROM2.bin $(PKG_BUILD_DIR)/mt_wifi/eeprom/ePAeLNA/MT7615_EEPROM2.bin
+	#cp $(PKG_BUILD_DIR)/mt_wifi/eeprom/MT7615E1_EEPROM3.bin $(PKG_BUILD_DIR)/mt_wifi/eeprom/ePAeLNA/MT7615_EEPROM3.bin
 	cp $(PKG_BUILD_DIR)/mt_wifi/os/linux/Makefile.mt_wifi_ap $(PKG_BUILD_DIR)/mt_wifi_ap/Makefile
 	make -C $(PKG_BUILD_DIR)/mt_wifi/embedded build_tools	
 	$(MAKE) -C "$(LINUX_DIR)" V=1 \
@@ -69,21 +74,29 @@ define Build/Compile
 		modules
 endef
 
+DAT1=mt7615e.1.dat
+DAT2=mt7615e.2.dat
+MT7615E_DIR=etc/wireless/mt7615e
 define KernelPackage/mt7615e/install
 	$(INSTALL_DIR) $(1)/etc/init.d/
 	#$(INSTALL_BIN) ./files/mt7615e $(1)/etc/init.d/
 	$(INSTALL_DIR) $(1)/lib/firmware/
-	$(INSTALL_BIN) ./files/mt7615e.eeprom.bin $(1)/lib/firmware/
-	$(INSTALL_DIR) $(1)/etc/wireless/mt7615e/
-	echo $(PKG_SOURCE) > $(1)/etc/wireless/version
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mt_wifi/mcu/bin/WIFI_RAM_CODE_MT7615.bin $(1)/lib/firmware/ ; \
+	#$(INSTALL_BIN) ./files/mt7615e.eeprom.bin $(1)/lib/firmware/
+	$(INSTALL_DIR) $(1)/$(MT7615E_DIR)
+	echo $(PKG_SOURCE) > $(1)/$(MT7615E_DIR)/version
 
-	if [ "$$(CONFIG_MT7615E_RT_FIRST_CARD)" = "7615" ] || [ "$$(CONFIG_MT7615E_RT_FIRST_CARD)" = "7615e" ]; then \
-		$(INSTALL_BIN) ./files/mt7615e.1.dat $(1)/etc/wireless/mt7615e/ ; \
-		$(INSTALL_BIN) ./files/mt7615e.1.eeprom.bin $(1)/lib/firmware/ ; \
+	if [ "$$(CONFIG_RT_FIRST_CARD)" = "7615" ] || [ "$$(CONFIG_RT_FIRST_CARD)" = "7615e" ]; then \
+		cat $(PKG_BUILD_DIR)/mt_wifi/embedded/conf/RT2860AP.dat | sed 's/SSID1=RT2860AP1/SSID1=openwrt/g' > ./files/$(DAT1) ; \
+		echo "E2pAccessMode=2" >> ./files/$(DAT1) ; \
+		$(INSTALL_BIN) ./files/$(DAT1) $(1)/$(MT7615E_DIR)/ ; \
+		$(INSTALL_BIN) $(PKG_BUILD_DIR)/mt_wifi/eeprom/MT7615E1_EEPROM.bin $(1)/lib/firmware/mt7615e.1.eeprom.bin ; \
 	fi
-	if [ "$$(CONFIG_MT7615E_RT_SECOND_CARD)" = "7615" ] || [ "$$(CONFIG_MT7615E_RT_SECOND_CARD)" = "7615e" ]; then \
-		$(INSTALL_BIN) ./files/mt7615e.2.dat $(1)/etc/wireless/mt7615e/ ; \
-		$(INSTALL_BIN) ./files/mt7615e.2.eeprom.bin $(1)/lib/firmware/ ; \
+	if [ "$$(CONFIG_RT_SECOND_CARD)" = "7615" ] || [ "$$(CONFIG_RT_SECOND_CARD)" = "7615e" ]; then \
+		cat $(PKG_BUILD_DIR)/mt_wifi/embedded/conf/RT2860AP.dat | sed 's/SSID1=RT2860AP1/SSID1=openwrt-5G/g ; s/WirelessMode=9/WirelessMode=14/g ; s/Channel=11/Channel=157/g' > ./files/$(DAT2) ; \
+		echo "E2pAccessMode=2" >> ./files/$(DAT2) ; \
+		$(INSTALL_BIN) ./files/$(DAT2) $(1)/$(MT7615E_DIR)/ ; \
+		$(INSTALL_BIN) $(PKG_BUILD_DIR)/mt_wifi/eeprom/MT7615E1_EEPROM2.bin $(1)/lib/firmware/mt7615e.2.eeprom.bin ; \
 	fi
 endef
 

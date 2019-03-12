@@ -1,5 +1,10 @@
 if PACKAGE_kmod-mt7615e
 
+config MT7615E_RALINK_MT7621
+	bool
+	default y
+	depends on PACKAGE_kmod-mt7615e
+
 config MT7615E_AP_SUPPORT
 	bool
 	default y
@@ -607,11 +612,11 @@ endif
 
 config MT7615E_RA_HW_NAT
 	bool
-	default y
+	default n
 
 config MT7615E_RA_HW_NAT_WIFI_NEW_ARCH
 	bool
-	default y
+	default n
 
 endif
 

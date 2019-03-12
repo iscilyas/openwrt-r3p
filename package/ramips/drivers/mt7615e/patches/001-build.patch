@@ -1,136 +1,129 @@
-Index: mt7615e/mt_wifi/embedded/common/cmm_info.c
+Index: mt7615e/mt_wifi/os/linux/Makefile.mt_wifi_ap
 ===================================================================
---- mt7615e.orig/mt_wifi/embedded/common/cmm_info.c
-+++ mt7615e/mt_wifi/embedded/common/cmm_info.c
-@@ -10690,6 +10690,7 @@
- 	RTMP_CHIP_CAP *pChipCap = hc_get_chip_cap(pAd->hdev_ctrl);
+--- mt7615e.orig/mt_wifi/os/linux/Makefile.mt_wifi_ap
++++ mt7615e/mt_wifi/os/linux/Makefile.mt_wifi_ap
+@@ -3,12 +3,13 @@
+ 				-Idrivers/net/wireless/mt_wifi/ate/include
  
- 	if (pAd->CommonCfg.dbdc_mode) { /* Dual Band */
-+#ifdef WIFI_SPECTRUM_SUPPORT
- 		if ((CapNode == pChipCap->SpectrumWF0ADC)  || (CapNode == pChipCap->SpectrumWF1ADC)
- 			|| (CapNode == pChipCap->SpectrumWF0FIIQ) || (CapNode == pChipCap->SpectrumWF1FIIQ)
- 			|| (CapNode == pChipCap->SpectrumWF0FDIQ) || (CapNode == pChipCap->SpectrumWF1FDIQ))
-@@ -10698,6 +10699,7 @@
- 				 || (CapNode == pChipCap->SpectrumWF2FIIQ) || (CapNode == pChipCap->SpectrumWF3FIIQ)
- 				 || (CapNode == pChipCap->SpectrumWF2FDIQ) || (CapNode == pChipCap->SpectrumWF3FDIQ))
- 			rfic =  RFIC_5GHZ;
-+#endif
- 	} else { /* Single Band */
- 		if (HcGetRadioChannel(pAd) <= 14)
- 			rfic = RFIC_24GHZ;
-@@ -10748,6 +10750,7 @@
- 	RTMP_CHIP_CAP *pChipCap = hc_get_chip_cap(pAd->hdev_ctrl);
+ ifeq ($(CONFIG_SUPPORT_OPENWRT),y)
+-EXTRA_CFLAGS = -I$(src)/../src/include \
+-				-I$(src)/../src/embedded/include \
+-				-I$(src)/../src/ate/include
+-DRV_NAME = mt7628
+-SRC_DIR = ../src/embedded
++DRV_NAME = mt7615e
++SRC_DIR = ../mt_wifi
++SRC_EMBEDDED_DIR = $(SRC_DIR)/embedded
+ obj-m += $(DRV_NAME).o
++EXTRA_CFLAGS = -I$(src)/$(SRC_DIR)/include \
++				-I$(src)/$(SRC_EMBEDDED_DIR)/include \
++				-I$(src)/$(SRC_DIR)/ate/include
+ else
+ EXTRA_CFLAGS = -Idrivers/net/wireless/mt_wifi/include \
+ 				-Idrivers/net/wireless/mt_wifi/embedded/include \
+@@ -750,7 +751,8 @@
+ EXTRA_CFLAGS += -DBRCM_256QAM 
+ endif
+ endif
+-EXTRA_CFLAGS += -Werror
++#EXTRA_CFLAGS += -Werror
++EXTRA_CFLAGS += -Wno-error=date-time
+ EXTRA_CFLAGS += -Wframe-larger-than=4096
+ ifeq ($(CONFIG_HDR_TRANS_TX_SUPPORT),y)
+ 	EXTRA_CFLAGS += -DHDR_TRANS_TX_SUPPORT -DCUT_THROUGH_FULL_OFFLOAD
+@@ -852,7 +854,8 @@
+ EXTRA_CFLAGS += -DCONFIG_HW_HAL_OFFLOAD
+ EXTRA_CFLAGS += -DCONFIG_FPGA_MODE
  
- 	if (pAd->CommonCfg.dbdc_mode) { /* Dual Band */
-+#ifdef WIFI_SPECTRUM_SUPPORT
- 		if ((CapNode == pChipCap->SpectrumWF0ADC)  || (CapNode == pChipCap->SpectrumWF1ADC)
- 			|| (CapNode == pChipCap->SpectrumWF0FIIQ) || (CapNode == pChipCap->SpectrumWF1FIIQ)
- 			|| (CapNode == pChipCap->SpectrumWF0FDIQ) || (CapNode == pChipCap->SpectrumWF1FDIQ))
-@@ -10756,6 +10759,7 @@
- 				 || (CapNode == pChipCap->SpectrumWF2FIIQ) || (CapNode == pChipCap->SpectrumWF3FIIQ)
- 				 || (CapNode == pChipCap->SpectrumWF2FDIQ) || (CapNode == pChipCap->SpectrumWF3FDIQ))
- 			rfic = RFIC_5GHZ;
-+#endif
- 	} else { /* Single Band */
- 		if (HcGetRadioChannel(pAd) <= 14)
- 			rfic = RFIC_24GHZ;
+-EXTRA_CFLAGS += -Werror
++#EXTRA_CFLAGS += -Werror
++EXTRA_CFLAGS += -Wno-error=date-time
+ ifeq ($(CONFIG_HDR_TRANS_TX_SUPPORT),y)
+         EXTRA_CFLAGS += -DHDR_TRANS_TX_SUPPORT -DCUT_THROUGH_FULL_OFFLOAD
+ endif
+@@ -939,7 +939,7 @@
+ EXTRA_CFLAGS += -DCONFIG_AP_SUPPORT -DSCAN_SUPPORT -DAP_SCAN_SUPPORT
+ EXTRA_CFLAGS += -DDOT11_N_SUPPORT -DDOT11N_DRAFT3 -DSTATS_COUNT_SUPPORT -DIAPP_SUPPORT -DDOT1X_SUPPORT
+ #EXTRA_CFLAGS += -DRALINK_ATE -DRALINK_QA -DCONFIG_RT2880_ATE_CMD_NEW
+-ifeq ($(CONFIG_RA_HW_NAT_WIFI_NEW_ARCH),n)
++ifneq ($(CONFIG_RA_HW_NAT_WIFI_NEW_ARCH),y)
+ EXTRA_CFLAGS += -DCONFIG_RA_NAT_NONE
+ endif
+
+Index: mt7615e/mt_wifi/os/linux/rt_profile.c
+===================================================================
+--- mt7615e.orig/mt_wifi/os/linux/rt_profile.c
++++ mt7615e/mt_wifi/os/linux/rt_profile.c
+@@ -24,6 +24,7 @@
+  */
+ 
+ #include "rt_config.h"
++#include "os/rt_linux.h"
+ 
+ #ifdef RTMP_UDMA_SUPPORT
+ #include "rt_udma.h"
+@@ -110,14 +110,14 @@
+ #define THIRD_CHIP_ID	xdef_to_str(MT_THIRD_CARD)
+ 
+ #else
+-#define FIRST_EEPROM_FILE_PATH	"/etc_ro/Wireless/RT2860/"
+-#define FIRST_AP_PROFILE_PATH		"/etc/Wireless/RT2860/RT2860.dat"
+-#define FIRST_STA_PROFILE_PATH      "/etc/Wireless/RT2860/RT2860.dat"
++#define FIRST_EEPROM_FILE_PATH	"/etc/wireless/mt7615e/"
++#define FIRST_AP_PROFILE_PATH		"/etc/wireless/mt7615e/mt7615e.1.dat"
++#define FIRST_STA_PROFILE_PATH      "/etc/wireless/mt7615e/mt7615e.1.sta.dat"
+ #define FIRST_CHIP_ID	xdef_to_str(MT_FIRST_CARD)
+ 
+-#define SECOND_EEPROM_FILE_PATH	"/etc_ro/Wireless/iNIC/"
+-#define SECOND_AP_PROFILE_PATH	"/etc/Wireless/iNIC/iNIC_ap.dat"
+-#define SECOND_STA_PROFILE_PATH "/etc/Wireless/iNIC/iNIC_sta.dat"
++#define SECOND_EEPROM_FILE_PATH	"/etc/wireless/mt7615e/"
++#define SECOND_AP_PROFILE_PATH	"/etc/wireless/mt7615e/mt7615e.2.dat"
++#define SECOND_STA_PROFILE_PATH "/etc/wireless/mt7615e/mt7615e.2.sta.dat"
+ 
+ #define SECOND_CHIP_ID	xdef_to_str(MT_SECOND_CARD)
 
 Index: mt7615e/mt_wifi/os/linux/rt_proc.c
 ===================================================================
 --- mt7615e.orig/mt_wifi/os/linux/rt_proc.c
 +++ mt7615e/mt_wifi/os/linux/rt_proc.c
-@@ -29,7 +29,7 @@
+@@ -29,6 +29,7 @@
  #include <linux/kernel.h>
  #include <linux/types.h>
  #include <linux/proc_fs.h>
--#include <asm/uaccess.h>
 +#include <linux/uaccess.h>
+ #include <asm/uaccess.h>
  
  #include "rt_config.h"
+@@ -62,7 +62,8 @@
+ #endif /* PROCREG_DIR */
  
+ #ifdef CONFIG_PROC_FS
+-extern struct proc_dir_entry *procRegDir;
++//extern struct proc_dir_entry *procRegDir;
++struct proc_dir_entry *procRegDir;
+ 
+ #ifdef VIDEO_TURBINE_SUPPORT
+ extern BOOLEAN UpdateFromGlobal;
+
 Index: mt7615e/mt_wifi/os/linux/rt_linux.c
 ===================================================================
 --- mt7615e.orig/mt_wifi/os/linux/rt_linux.c
 +++ mt7615e/mt_wifi/os/linux/rt_linux.c
-@@ -803,7 +803,7 @@
- #else
- 
- 	if (osfd->f_mode & FMODE_CAN_READ) {
--		return __vfs_read(osfd, pDataPtr, readLen, &osfd->f_pos);
-+		return kernel_read(osfd, pDataPtr, readLen, &osfd->f_pos);
- #endif
- 	} else {
- 		MTWF_LOG(DBG_CAT_INIT, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("no file read method\n"));
-@@ -817,7 +817,7 @@
- #if (KERNEL_VERSION(4, 1, 0) > LINUX_VERSION_CODE)
- 	return osfd->f_op->write(osfd, pDataPtr, (size_t) writeLen, &osfd->f_pos);
- #else
--	return __vfs_write(osfd, pDataPtr, (size_t) writeLen, &osfd->f_pos);
-+	return kernel_write(osfd, pDataPtr, (size_t) writeLen, &osfd->f_pos);
- #endif
- }
- 
-@@ -1917,7 +1917,7 @@
- 				MTWF_LOG(DBG_CAT_INIT, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("no file write method\n"));
- 			}
- #else
--			__vfs_write(file_w, msg, strlen(msg), &file_w->f_pos);
-+			kernel_write(file_w, msg, strlen(msg), &file_w->f_pos);
- #endif
- 				MTWF_LOG(DBG_CAT_INIT, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("%s", msg));
- 				macAddr += AddrStep;
-@@ -1977,7 +1977,7 @@
- 					MTWF_LOG(DBG_CAT_INIT, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("no file write method\n"));
- 				}
- #else
--				__vfs_write(file_w, msg, strlen(msg), &file_w->f_pos);
-+				kernel_write(file_w, msg, strlen(msg), &file_w->f_pos);
- #endif
- 				MTWF_LOG(DBG_CAT_INIT, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("%s", msg));
- 				eepAddr += AddrStep;
-@@ -2025,7 +2025,7 @@
- 				MTWF_LOG(DBG_CAT_INIT, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("no file write method\n"));
- 			}
- #else
--			__vfs_write(file_w, pBuf, BufLen, &file_w->f_pos);
-+			kernel_write(file_w, pBuf, BufLen, &file_w->f_pos);
- #endif
- 		}
- 
-
-
-Index: mt7615e/mt_wifi/os/linux/Makefile.mt_wifi_ap
-===================================================================
---- mt7615e.orig/mt_wifi/os/linux/Makefile.mt_wifi_ap
-+++ mt7615e/mt_wifi/os/linux/Makefile.mt_wifi_ap
-@@ -13,7 +13,7 @@
- 				-I$(WIFI_DRV_PATH)/mt_wifi/ate/include \
- 				-I$(WIFI_DRV_PATH)/mt_wifi/include/mcu
- 
--DRV_NAME = mt_wifi
-+DRV_NAME = mt7615e
- SRC_DIR = ../mt_wifi
- SRC_EMBEDDED_DIR = ../mt_wifi/embedded
- ifeq ($(CONFIG_SUPPORT_OPENWRT),y)
-
-Index: mt7615e/mt_wifi/embedded/common/ee_flash.c
-===================================================================
---- mt7615e.orig/mt_wifi/embedded/common/ee_flash.c
-+++ mt7615e/mt_wifi/embedded/common/ee_flash.c
-@@ -30,6 +30,7 @@
- 
- #include	"rt_config.h"
- #include "hdev/hdev.h"
+@@ -36,6 +36,7 @@
+ #include "rt_os_util.h"
+ #include "security/dot11i_wpa.h"
+ #include <linux/rtnetlink.h>
 +#include "linux/mtd/mtd.h"
  
- /*decision flash api by compiler flag*/
- #ifdef CONFIG_PROPRIETARY_DRIVER
-@@ -137,7 +138,15 @@
- 	ULONG a,
- 	ULONG b)
- {
--	flash_read(hdev_ctrl, p, a, b);
-+	//flash_read(hdev_ctrl, p, a, b);
+ #include "rt_os_net.h"
+ #ifdef MEM_ALLOC_INFO_SUPPORT
+@@ -348,6 +348,19 @@
+ 
+ #endif /* CONFIG_RALINK_FLASH_API */
+ 
++void flash_read_openwrt(UCHAR *p, ULONG a, ULONG b)
++{
 +	size_t retlen;
 +	struct mtd_info *mtd_info = get_mtd_device_nm("Factory");
 +	if (IS_ERR(mtd_info) || mtd_info == NULL) {
@@ -139,15 +132,26 @@ Index: mt7615e/mt_wifi/embedded/common/ee_flash.c
 +	}
 +	mtd_read(mtd_info, a, b, &retlen, p);
 +	put_mtd_device(mtd_info);
++
++}
++
+ void RtmpFlashRead(
+ 	UCHAR *p,
+ 	ULONG a,
+@@ -362,12 +375,25 @@
+ 	//wilsonl, fix compile for temp
+ #ifndef MT7622
+ 	/* ra_mtd_read_nm("Factory", a&0xFFFF, (size_t) b, p); */
+-	ra_mtd_read_nm("Factory", a, (size_t) b, p);  /* triple card needs to access beyond 0xFFFF , don't mask */
++	//ra_mtd_read_nm("Factory", a, (size_t) b, p);  /* triple card needs to access beyond 0xFFFF , don't mask */
++	flash_read_openwrt(p, a, b);
+ #endif
+ #endif
+ #endif /* CONFIG_RALINK_FLASH_API */
  }
  
- void RtmpFlashWrite(
-@@ -146,11 +155,18 @@
- 	ULONG a,
- 	ULONG b)
- {
--	flash_write(hdev_ctrl, p, a, b);
-+	//flash_write(hdev_ctrl, p, a, b);
++void flash_write_openwrt(UCHAR *p, ULONG a, ULONG b)
++{
 +	size_t retlen;
 +	struct mtd_info *mtd_info = get_mtd_device_nm("Factory");
 +	if (IS_ERR(mtd_info) || mtd_info == NULL) {
@@ -156,13 +160,137 @@ Index: mt7615e/mt_wifi/embedded/common/ee_flash.c
 +	}
 +	mtd_write(mtd_info, a, b, &retlen, p);
 +	put_mtd_device(mtd_info);
++}
++
+ void RtmpFlashWrite(
+ 	UCHAR * p,
+ 	ULONG a,
+@@ -382,7 +408,8 @@
+ 	//wilsonl, fix compile for temp
+ #ifndef MT7622
+ 	/* ra_mtd_write_nm("Factory", a&0xFFFF, (size_t) b, p); */
+-	ra_mtd_write_nm("Factory", a, (size_t) b, p);  /* triple card needs to access beyond 0xFFFF , don't mask */
++	//ra_mtd_write_nm("Factory", a, (size_t) b, p);  /* triple card needs to access beyond 0xFFFF , don't mask */
++	flash_write_openwrt(p, a, b);
+ #endif
+ #endif
+ #endif /* CONFIG_RALINK_FLASH_API */
+@@ -912,7 +939,7 @@
+ 		return osfd->f_op->read(osfd, pDataPtr, readLen, &osfd->f_pos);
+ #else
+ 	if (osfd->f_mode & FMODE_CAN_READ) {
+-		return __vfs_read(osfd, pDataPtr, readLen,&osfd->f_pos);
++		return kernel_read(osfd, pDataPtr, readLen,&osfd->f_pos);
+ #endif
+ 	} else {
+ 		MTWF_LOG(DBG_CAT_INIT, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("no file read method\n"));
+@@ -926,7 +953,7 @@
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 1, 0)
+ 	return osfd->f_op->write(osfd, pDataPtr, (size_t) writeLen, &osfd->f_pos);
+ #else
+-	return __vfs_write(osfd, pDataPtr, (size_t) writeLen, &osfd->f_pos);
++	return kernel_write(osfd, pDataPtr, (size_t) writeLen, &osfd->f_pos);
+ #endif
  }
  
+Index: mt7615e/mt_wifi/os/linux/rt_rbus_pci_util.c
+===================================================================
+--- mt7615e.orig/mt_wifi/os/linux/rt_rbus_pci_util.c
++++ mt7615e/mt_wifi/os/linux/rt_rbus_pci_util.c
+@@ -21,7 +21,7 @@
+ #include "rt_os_util.h"
  
--
- static NDIS_STATUS rtmp_ee_flash_init(PRTMP_ADAPTER pAd, PUCHAR start);
+ #if LINUX_VERSION_CODE > KERNEL_VERSION(3,10,20)
+-#include <asm-generic/pci-dma-compat.h>
++#include <linux/pci-dma-compat.h>
+ #endif
  
- static BOOLEAN rtmp_ee_init_check(struct _RTMP_ADAPTER *ad)
+ #ifdef RTMP_MAC_PCI
+
+Index: mt7615e/mt_wifi/include/chip/mt7615.h
+===================================================================
+--- mt7615e.orig/mt_wifi/include/chip/mt7615.h
++++ mt7615e/mt_wifi/include/chip/mt7615.h
+@@ -16,7 +16,7 @@
+ #define MT7615_PDA_PORT		0xf800
+ 
+ #define MT7615_CT_PARSE_LEN	72
+-#define MT7615_BIN_FILE_PATH "/etc/Wireless/WIFI_RAM_CODE_MT7615.bin"
++#define MT7615_BIN_FILE_PATH "/lib/firmware/WIFI_RAM_CODE_MT7615.bin"
+ 
+ #ifdef RF_LOCKDOWN
+ #define COUNTRY_CODE_BYTE0_EEPROME_OFFSET   0x11C
+
+Index: mt7615e/mt_wifi/embedded/common/cmm_profile.c
+===================================================================
+--- mt7615e.orig/mt_wifi/embedded/common/cmm_profile.c
++++ mt7615e/mt_wifi/embedded/common/cmm_profile.c
+@@ -5464,8 +5464,8 @@
+ 
+ 	/* get MAC address*/
+ #ifdef RTMP_FLASH_SUPPORT
+-	RtmpFlashRead(&mac_maybe[0][0], 0x40000 + 0x04, MAC_ADDR_LEN);
+-	RtmpFlashRead(&mac_maybe[1][0], 0x48000 + 0x04, MAC_ADDR_LEN);
++	RtmpFlashRead(&mac_maybe[0][0], MT_FIRST_IF_RF_OFFSET + 0x04, MAC_ADDR_LEN);
++	RtmpFlashRead(&mac_maybe[1][0], MT_SECOND_IF_RF_OFFSET + 0x04, MAC_ADDR_LEN);
+ 	MTWF_LOG(DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_TRACE, ("mac addr1 in flash=%02x:%02x:%02x:%02x:%02x:%02x!\n", PRINT_MAC(mac_maybe[0])));
+ 	MTWF_LOG(DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_TRACE, ("mac addr2 in flash=%02x:%02x:%02x:%02x:%02x:%02x!\n", PRINT_MAC(mac_maybe[1])));
+ #endif /* RTMP_FLASH_SUPPORT */
+
+Index: mt7615e/mt_wifi/embedded/include/eeprom.h
+===================================================================
+--- mt7615e.orig/mt_wifi/embedded/include/eeprom.h
++++ mt7615e/mt_wifi/embedded/include/eeprom.h
+@@ -91,8 +91,8 @@
+ #endif /* BB_SOC */
+ 
+ #define EEPROM_DFT_FILE_DIR		"/etc_ro/wlan/"
+-#define EEPROM_1ST_FILE_DIR		"/etc_ro/Wireless/RT2860/"
+-#define EEPROM_2ND_FILE_DIR		"/etc_ro/Wireless/iNIC/"
++#define EEPROM_1ST_FILE_DIR		"/lib/firmware/"
++#define EEPROM_2ND_FILE_DIR		"/lib/firmware/"
+ 
+ #ifndef EEPROM_DEFAULT_FILE_PATH
+ /* RFIC 2820 */
+@@ -100,7 +100,7 @@
+ 
+ #ifdef MT7615
+ #undef EEPROM_DEFAULT_FILE_PATH
+-#define EEPROM_DEFAULT_FILE_PATH                     "/etc_ro/wlan/MT7615_EEPROM.bin"
++#define EEPROM_DEFAULT_FILE_PATH                     "/lib/firmware/mt7615e.1.eeprom.bin"
+ #endif /* MT7615 */
+ 
+ 
+@@ -113,10 +113,12 @@
+ #if defined (CONFIG_RT2880_FLASH_32M)
+ #define DEFAULT_RF_OFFSET					0x1FE0000
+ #else
+-#define DEFAULT_RF_OFFSET					0x40000
++//#define DEFAULT_RF_OFFSET					0x40000
++#define DEFAULT_RF_OFFSET					MT_FIRST_IF_RF_OFFSET
+ #endif
+ 
+-#define SECOND_RF_OFFSET					0x48000
++//#define SECOND_RF_OFFSET					0x48000
++#define SECOND_RF_OFFSET					MT_SECOND_IF_RF_OFFSET
+ #endif /* RTMP_FLASH_SUPPORT */
+ 
+ 
+Index: mt7615e/mt_wifi/embedded/common_rtmp_init.c
+===================================================================
+--- mt7615e.orig/mt_wifi/embedded/common/rtmp_init.c
++++ mt7615e/mt_wifi/embedded/common/rtmp_init.c
+@@ -2595,8 +2595,8 @@
+ /*	if ((IS_PCIE_INF(pAd))) */
+ 	{
+ 		/* specific for RT6855/RT6856 */
+-		pAd->E2P_OFFSET_IN_FLASH[0] = 0x40000;
+-		pAd->E2P_OFFSET_IN_FLASH[1] = 0x48000;
++		pAd->E2P_OFFSET_IN_FLASH[0] = MT_FIRST_IF_RF_OFFSET;
++		pAd->E2P_OFFSET_IN_FLASH[1] = MT_SECOND_IF_RF_OFFSET;
+ 	}
+ #endif /* RTMP_FLASH_SUPPORT */
+ #endif /* MULTIPLE_CARD_SUPPORT */
 
 Index: mt7615e/mt_wifi/chips/mt7615.c
 ===================================================================
@@ -178,210 +306,45 @@ Index: mt7615e/mt_wifi/chips/mt7615.c
  #define DEFAULT_BIN_FILE "/etc/MT7615E_EEPROM1.bin"
  #endif /* CONFIG_AP_SUPPORT */
  
- #ifdef CONFIG_RT_SECOND_CARD
+ #ifdef MT_SECOND_CARD
 -#define SECOND_BIN_FILE "/etc_ro/wlan/MT7615E_EEPROM2.bin"
 +#define SECOND_BIN_FILE "/lib/firmware/mt7615e.2.eeprom.bin"
- #endif /* CONFIG_RT_SECOND_CARD */
- #ifdef CONFIG_RT_THIRD_CARD
+ #endif /* MT_SECOND_CARD */
+ #ifdef MT_THIRD_CARD
  #define THIRD_BIN_FILE "/etc_ro/wlan/MT7615E_EEPROM3.bin"
 
-Index: mt7615e/mt_wifi/os/linux/rt_profile.c
+Index: mt7615e/mt_wifi/embedded/tools/bin2h.c
 ===================================================================
---- mt7615e.orig/mt_wifi/os/linux/rt_profile.c
-+++ mt7615e/mt_wifi/os/linux/rt_profile.c
-@@ -98,13 +98,13 @@
- #define xdef_to_str(s)   def_to_str(s)
- #define def_to_str(s)    #s
+--- mt7615e.orig/mt_wifi/embedded/tools/bin2h.c
++++ mt7615e/mt_wifi/embedded/tools/bin2h.c
+@@ -44,6 +44,7 @@
+ 		return -1;
+     }
  
--#define FIRST_EEPROM_FILE_PATH	"/etc_ro/Wireless/RT2860/"
--#define FIRST_AP_PROFILE_PATH		"/etc/Wireless/RT2860/RT2860.dat"
-+#define FIRST_EEPROM_FILE_PATH	"/lib/firmware/mt7615e.1.eeprom.bin"
-+#define FIRST_AP_PROFILE_PATH		"/etc/wireless/mt7615e/mt7615e.1.dat"
- #define FIRST_STA_PROFILE_PATH      "/etc/Wireless/RT2860/RT2860.dat"
- #define FIRST_CHIP_ID	xdef_to_str(CONFIG_RT_FIRST_CARD)
++    printf("bin2h: input file successfully opened: '%s'\n", infname);
+     outfile = fopen(outfname, mode);
  
--#define SECOND_EEPROM_FILE_PATH	"/etc_ro/Wireless/iNIC/"
--#define SECOND_AP_PROFILE_PATH	"/etc/Wireless/iNIC/iNIC_ap.dat"
-+#define SECOND_EEPROM_FILE_PATH	"/lib/firmware/mt7615e.2.eeprom.bin"
-+#define SECOND_AP_PROFILE_PATH	"/etc/wireless/mt7615e/mt7615e.2.dat"
- #define SECOND_STA_PROFILE_PATH "/etc/Wireless/iNIC/iNIC_sta.dat"
+     if (outfile == (FILE *) NULL) {
+@@ -52,6 +53,7 @@
+        	return -1;
+     }
  
- #define SECOND_CHIP_ID	xdef_to_str(CONFIG_RT_SECOND_CARD)
++    printf("bin2h: output file successfully opened: '%s'\n", outfname);
+     fputs("/* AUTO GEN PLEASE DO NOT MODIFY IT */ \n",outfile);
+     fputs("/* AUTO GEN PLEASE DO NOT MODIFY IT */ \n",outfile);
+     fputs("\n",outfile);
 
-Index: mt7615e/mt_wifi/include/os/rt_linux.h
+Index: mt7615e/mt_wifi/os/linux/rt_main_dev.c
 ===================================================================
---- mt7615e.orig/mt_wifi/include/os/rt_linux.h
-+++ mt7615e/mt_wifi/include/os/rt_linux.h
-@@ -135,8 +135,8 @@
- #ifdef CONFIG_AP_SUPPORT
+--- mt7615e.orig/mt_wifi/os/linux/rt_main_dev.c
+--- mt7615e/mt_wifi/os/linux/rt_main_dev.c
+@@ -47,7 +47,7 @@
+ 
+ // TODO: shiang-6590, remove it when MP
  #ifdef RTMP_MAC_PCI
- #if CONFIG_RTPCI_AP_RF_OFFSET == 0x48000
--#define AP_PROFILE_PATH			"/etc/Wireless/iNIC/iNIC_ap.dat"
--#define AP_RTMP_FIRMWARE_FILE_NAME "/etc_ro/Wireless/iNIC/RT2860AP.bin"
-+#define AP_PROFILE_PATH			"/etc/wireless/mt7615e/mt7615e.2.dat"
-+#define AP_RTMP_FIRMWARE_FILE_NAME "/lib/firmware/mt7615e.2.eeprom.bin"
- #else
- #define AP_PROFILE_PATH			"/etc/Wireless/RT2860AP/RT2860AP.dat"
- #define AP_RTMP_FIRMWARE_FILE_NAME "/etc/Wireless/RT2860AP/RT2860AP.bin"
-@@ -153,15 +153,15 @@
+-MODULE_LICENSE("Proprietary");
++MODULE_LICENSE("GPL");
+ #endif /* RTMP_MAC_PCI */
+ // TODO: End---
  
- #ifdef RTMP_RBUS_SUPPORT
- /* This used for rbus-based chip, maybe we can integrate it together. */
--#define RTMP_FIRMWARE_FILE_NAME		"/etc_ro/Wireless/RT2860AP/RT2860AP.bin"
-+#define RTMP_FIRMWARE_FILE_NAME		"/lib/firmware/mt7615e.1.eeprom.bin"
- #define PROFILE_PATH			"/etc/Wireless/RT2860i.dat"
--#define AP_PROFILE_PATH_RBUS		"/etc/Wireless/RT2860/RT2860.dat"
-+#define AP_PROFILE_PATH_RBUS		"/etc/wireless/mt7615e/mt7615e.1.dat"
- #define RT2880_AP_DRIVER_VERSION	"1.0.0.0"
- #endif /* RTMP_RBUS_SUPPORT */
- 
- #ifdef SINGLE_SKU_V2
--#define SINGLE_SKU_TABLE_FILE_NAME	"/etc_ro/Wireless/RT2860AP/SingleSKU.dat"
--#define BF_SKU_TABLE_FILE_NAME      "/etc_ro/Wireless/RT2860AP/SingleSKU_BF.dat"
-+#define SINGLE_SKU_TABLE_FILE_NAME	"/etc/wireless/mt7615e/SingleSKU.dat"
-+#define BF_SKU_TABLE_FILE_NAME      "/etc/wireless/mt7615e/SingleSKU_BF.dat"
- #endif /* SINGLE_SKU_V2 */
- 
- #endif /* CONFIG_AP_SUPPORT */
-
-Index: mt7615e/mt_wifi/embedded/include/l1profile.h
-===================================================================
---- mt7615e.orig/mt_wifi/embedded/include/l1profile.h
-+++ mt7615e/mt_wifi/embedded/include/l1profile.h
-@@ -1,7 +1,7 @@
- UCHAR l1profile_default[] = {
- "Default\n\
- INDEX0=MT7615\n\
--INDEX0_profile_path=/etc/Wireless/RT2860/RT2860.dat\n\
-+INDEX0_profile_path=/etc/wireless/mt7615e/mt7615e.1.dat\n\
- INDEX0_EEPROM_offset=0x0\n\
- INDEX0_EEPROM_size=0x4000\n\
- INDEX0_EEPROM_name=e2p\n\
-@@ -11,10 +11,10 @@
- INDEX0_apcli_ifname=apcli\n\
- INDEX0_mesh_ifname=mesh\n\
- INDEX0_nvram_zone=RT2860\n\
--INDEX0_single_sku_path=/etc_ro/Wireless/RT2860AP/SingleSKU.dat\n\
--INDEX0_bf_sku_path=/etc_ro/Wireless/RT2860AP/SingleSKU_BF.dat\n\
-+INDEX0_single_sku_path=/etc/wireless/mt7615e/SingleSKU.dat\n\
-+INDEX0_bf_sku_path=/etc/wireless/mt7615e/SingleSKU_BF.dat\n\
- INDEX1=MT7615\n\
--INDEX1_profile_path=/etc/Wireless/iNIC/iNIC_ap.dat\n\
-+INDEX1_profile_path=/etc/wireless/mt7615e/mt7615e.2.dat\n\
- INDEX1_EEPROM_offset=0x8000\n\
- INDEX1_EEPROM_size=0x4000\n\
- INDEX1_EEPROM_name=e2p\n\
-@@ -24,8 +24,8 @@
- INDEX1_apcli_ifname=apclii\n\
- INDEX1_mesh_ifname=meshi\n\
- INDEX1_nvram_zone=RTDEV\n\
--INDEX1_single_sku_path=/etc_ro/Wireless/RT2860AP/SingleSKU.dat\n\
--INDEX1_bf_sku_path=/etc_ro/Wireless/RT2860AP/SingleSKU_BF.dat\n\
-+INDEX1_single_sku_path=/etc/wireless/mt7615e/SingleSKU.dat\n\
-+INDEX1_bf_sku_path=/etc/wireless/mt7615e/SingleSKU_BF.dat\n\
- INDEX2=MT7615\n\
- INDEX2_profile_path=/etc/Wireless/WIFI3/RT2870AP.dat\n\
- INDEX2_EEPROM_offset=0x4000\n\
-
-Index: mt7615e/mt_wifi/embedded/include/cfg80211.h
-===================================================================
---- mt7615e.orig/mt_wifi/embedded/include/cfg80211.h
-+++ mt7615e/mt_wifi/embedded/include/cfg80211.h
-@@ -36,7 +36,7 @@
- typedef struct __CFG80211_CB {
- 
- 	/* we can change channel/rate information on the fly so we backup them */
--	struct ieee80211_supported_band Cfg80211_bands[IEEE80211_NUM_BANDS];
-+	struct ieee80211_supported_band Cfg80211_bands[NUM_NL80211_BANDS];
- 	struct ieee80211_channel *pCfg80211_Channels;
- 	struct ieee80211_rate *pCfg80211_Rates;
- 
-Index: mt7615e/mt_wifi/embedded/include/cfg80211extr.h
-===================================================================
---- mt7615e.orig/mt_wifi/embedded/include/cfg80211extr.h
-+++ mt7615e/mt_wifi/embedded/include/cfg80211extr.h
-@@ -34,7 +34,7 @@
- #endif /* RT_CFG80211_DEBUG */
- 
- /* CFG_TODO */
--#include "wfa_p2p.h"
-+//#include "wfa_p2p.h"
- 
- #define RT_CFG80211_REGISTER(__pDev, __pNetDev)								\
- 	CFG80211_Register(__pDev, __pNetDev);
-@@ -66,7 +66,7 @@
- 
- #define RT_CFG80211_SCAN_END(__pAd, __FlgIsAborted)							\
- 	CFG80211_ScanEnd((VOID *)__pAd, __FlgIsAborted);
--#define RT_CFG80211_REINIT(__pAd)											\
-+#define RT_CFG80211_REINIT(__pAd,__wdev)											\
- 	CFG80211_SupBandReInit((VOID *)__pAd, (VOID *)__wdev);
- 
- #define RT_CFG80211_RFKILL_STATUS_UPDATE(_pAd, _active)					\
-
-Index: mt7615e/mt_wifi/embedded/common/rt_channel.c
-===================================================================
---- mt7615e.orig/mt_wifi/embedded/common/rt_channel.c
-+++ mt7615e/mt_wifi/embedded/common/rt_channel.c
-@@ -1606,12 +1606,12 @@
- 
- 		if ((pAd->CommonCfg.bIEEE80211H == 1) &&
- 			(pAd->CommonCfg.RDDurRegion == FCC) &&
--			(pAd->Dot11_H.bDFSIndoor == 1)) {
-+			(pAd->Dot11_H->bDFSIndoor == 1)) {
- 			if (RESTRICTION_BAND_1(pAd, channel, bw))
- 				continue;
- 		} else if ((pAd->CommonCfg.bIEEE80211H == 1) &&
- 				   (pAd->CommonCfg.RDDurRegion == FCC) &&
--				   (pAd->Dot11_H.bDFSIndoor == 0)) {
-+				   (pAd->Dot11_H->bDFSIndoor == 0)) {
- 			if ((channel >= 100) && (channel <= 140))
- 				continue;
- 		}
-@@ -1698,7 +1698,8 @@
- 				else
- 					regulatoryDomain = pChRegion->op_class_region;
- 
--				offset = FillChList(pAd, &pChDesp[i], offset, increment, regulatoryDomain, PhyMode);
-+				offset = FillChList(pAd, &pChDesp[i], offset, increment, regulatoryDomain,
-+					pAd->ApCfg.MBSSID[MAIN_MBSSID].wdev.PhyMode);
- 			}
- 		}
- 	}
-
-Index: mt7615e/mt_wifi/embedded/mgmt/mgmt_entrytb.c
-===================================================================
---- mt7615e.orig/mt_wifi/embedded/mgmt/mgmt_entrytb.c
-+++ mt7615e/mt_wifi/embedded/mgmt/mgmt_entrytb.c
-@@ -1126,7 +1126,7 @@
- #ifdef RT_CFG80211_SUPPORT
- 
- 
--		if (bCfgSendEvent && pEntry && !IS_ENTRY_NONE(pEntry) && IS_ENTRY_CLIENT(pEntry)) {
-+		if (pEntry && !IS_ENTRY_NONE(pEntry) && IS_ENTRY_CLIENT(pEntry)) {
- 			if (RTMP_CFG80211_HOSTAPD_ON(pAd)
- 			   )
- 				CFG80211_ApStaDelSendEvent(pAd, TmpAddrForIndicate, pEntry->wdev->if_dev);
-
-Index: mt7615e/mt_wifi/os/linux/cfg80211/cfg80211_rx.c
-===================================================================
---- mt7615e.orig/mt_wifi/os/linux/cfg80211/cfg80211_rx.c
-+++ mt7615e/mt_wifi/os/linux/cfg80211/cfg80211_rx.c
-@@ -70,6 +70,8 @@
- 		else if (ieee80211_is_deauth(mgmt->frame_control))
- 			MTWF_LOG(DBG_CAT_RX, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("CFG80211_PKT: %s Deauth Frame on %d\n", preStr, pAd->LatchRfRegs.Channel));
- 		else if (ieee80211_is_action(mgmt->frame_control)) {
-+			MTWF_LOG(DBG_CAT_RX, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("CFG80211_PKT: %s Frame Control on %d. But Frame Control is broken!\n", preStr, pAd->LatchRfRegs.Channel));
-+#if 0
- 			PP2P_PUBLIC_FRAME pFrame = (PP2P_PUBLIC_FRAME)pData;
- 
- 			if ((pFrame->p80211Header.FC.SubType == SUBTYPE_ACTION) &&
-@@ -133,6 +135,7 @@
- 
- 			else
- 				MTWF_LOG(DBG_CAT_RX, DBG_SUBCAT_ALL, DBG_LVL_INFO, ("CFG80211_PKT: %s ACTION Frame with Channel%d\n", preStr, pAd->LatchRfRegs.Channel));
-+#endif
- 		} else
- 			MTWF_LOG(DBG_CAT_RX, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("CFG80211_PKT: %s UNKOWN MGMT FRAME TYPE\n", preStr));
- 	} else
 
