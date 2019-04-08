@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
 /dts-v1/;
 
 #include "mt7621.dtsi"
@@ -10,11 +11,12 @@
 	model = "Xiaomi Mi Router 3 Pro";
 
 	aliases {
-		led-boot = &led_status_blue;
-		led-failsafe = &led_status_blue;
+		led-boot = &led_status_yellow;
+		led-failsafe = &led_status_red;
 		led-running = &led_status_blue;
-		led-upgrade = &led_status_blue;
+		led-upgrade = &led_status_yellow;
 	};
+
 	memory@0 {
 		device_type = "memory";
 		reg = <0x0 0x1c000000>, <0x20000000 0x04000000>;
@@ -23,10 +25,11 @@
 	chosen {
 		bootargs = "console=ttyS0,115200n8";
 	};
-	gpio-leds {
+
+	leds {
 		compatible = "gpio-leds";
 
-		status_red {
+		led_status_red: status_red {
 			label = "mir3p:red:status";
 			gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
 		};
@@ -36,7 +39,7 @@
 			gpios = <&gpio0 8 GPIO_ACTIVE_LOW>;
 		};
 
-		status_yellow {
+		led_status_yellow: status_yellow {
 			label = "mir3p:yellow:status";
 			gpios = <&gpio0 10 GPIO_ACTIVE_LOW>;
 		};
@@ -46,14 +49,7 @@
 			gpios = <&gpio0 14 GPIO_ACTIVE_LOW>;
 		};
 
-		/*
-		 * Yes, the GPIO numbering scheme is really this
-		 * illogical:
-		 * 	lan3: gpio 13
-		 *	lan2: gpio 16
-		 *	lan1: gpio 15
-		 */
-		lan1_amber {
+		lan3_amber {
 			label = "mir3p:amber:lan3";
 			gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
 		};
@@ -63,13 +59,13 @@
 			gpios = <&gpio0 16 GPIO_ACTIVE_LOW>;
 		};
 
-		lan3_amber {
+		lan1_amber {
 			label = "mir3p:amber:lan1";
 			gpios = <&gpio0 15 GPIO_ACTIVE_LOW>;
 		};
 	};
 
-	gpio-keys-polled {
+	button {
 		compatible = "gpio-keys-polled";
 		poll-interval = <20>;
 
@@ -80,7 +76,7 @@
 		};
 	};
 
-	reg_usb_vbus: reg_usb_vbus {
+	reg_usb_vbus: regulator {
 		compatible = "regulator-fixed";
 		regulator-name = "usb_vbus";
 		regulator-min-microvolt = <5000000>;
@@ -141,43 +137,46 @@
 			read-only;
 		};
 
-		/* uboot expects to find kernels at 0x200000 & 0x600000
-		 * referred to as system 1 & system 2 respectively.
-		 * a kernel is considered suitable for handing control over
-		 * if its linux magic number exists & uImage CRC are correct.
-		 * If either of those conditions fail, a matching sys'n'_fail flag
-		 * is set in uboot env & a restart performed in the hope that the
-		 * alternate kernel is okay.
-		 * if neither kernel checksums ok and both are marked failed, system 2
-		 * is booted anyway.
-		 *
-		 * Note uboot's tftp flash install writes the transferred
-		 * image to both kernel partitions.
-		 */
-
+		/* We keep stock xiaomi firmware (kernel0) here */
 		partition@200000 {
 			label = "kernel_stock";
 			reg = <0x200000 0x400000>;
 		};
 
-		/*
-		 * The remaining space is free for us to play with.
-		 * "kernel" and "ubi" partitions are combined as "firmware"
-		 * and split at boot-time
-		 */
 		partition@600000 {
-			label = "firmware";
-			compatible = "denx,uimage";
-			reg = <0x600000 0xf980000>;
+			label = "kernel";
+			reg = <0x600000 0x400000>;
+		};
+
+		partition@a00000 {
+			label = "ubi";
+			reg = <0xa00000 0xf580000>;
 		};
 	};
 };
 
 &pcie {
-	/* mt76 doesn't support 7615 yet... */
 	status = "okay";
 };
 
+&pcie0 {
+	wifi@0,0 {
+		compatible = "pci14c3,7615";
+		reg = <0x0000 0 0 0 0>;
+		mediatek,mtd-eeprom = <&factory 0x0000>;
+	};
+};
+
+&pcie1 {
+	wifi@0,0 {
+		compatible = "pci14c3,7615";
+		reg = <0x0000 0 0 0 0>;
+		mediatek,mtd-eeprom = <&factory 0x8000>;
+		ieee80211-freq-limit = <5000000 6000000>;
+	};
+};
+
+>>>>>>> 8f1cbef12ee5ae7e48830128425ca555500b87f6
 &ethernet {
 	mtd-mac-address = <&factory 0xe000>;
 	mediatek,portmap = "llllw";

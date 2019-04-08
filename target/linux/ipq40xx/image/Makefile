@@ -62,6 +62,30 @@ define Device/8dev_jalapeno
 endef
 TARGET_DEVICES += 8dev_jalapeno
 
+define Device/alfa-network_ap120c-ac
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	DEVICE_TITLE := ALFA Network AP120C-AC
+	DEVICE_DTS := qcom-ipq4018-ap120c-ac
+	DEVICE_PACKAGES := ipq-wifi-alfa-network_ap120c-ac kmod-usb-acm \
+		kmod-tpm-i2c-atmel uboot-envtools
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	IMAGE_SIZE := 65536k
+	IMAGES := nand-factory.bin nand-sysupgrade.bin
+	IMAGE/nand-factory.bin := append-ubi | qsdk-ipq-factory-nand
+endef
+TARGET_DEVICES += alfa-network_ap120c-ac
+
+define Device/asus_map-ac2200
+	$(call Device/FitImageLzma)
+	DEVICE_DTS := qcom-ipq4019-map-ac2200
+	DEVICE_TITLE := ASUS Lyra MAP-AC2200
+	IMAGES := sysupgrade.bin
+	DEVICE_PACKAGES := ipq-wifi-asus_map-ac2200 ath10k-firmware-qca9888-ct kmod-ath3k
+endef
+TARGET_DEVICES += asus_map-ac2200
+
 define Device/asus_rt-ac58u
 	$(call Device/FitImageLzma)
 	DEVICE_DTS := qcom-ipq4018-rt-ac58u
@@ -97,6 +121,24 @@ define Device/avm_fritzbox-4040
 endef
 TARGET_DEVICES += avm_fritzbox-4040
 
+define Device/avm_fritzbox-7530
+	$(call Device/FitImageLzma)
+	DEVICE_DTS := qcom-ipq4019-fritzbox-7530
+	DEVICE_TITLE := AVM Fritz!Box 7530
+	DEVICE_PACKAGES := fritz-caldata fritz-tffs-nand ipq-wifi-avm_fritzbox-7530
+	IMAGES := sysupgrade.bin
+endef
+TARGET_DEVICES += avm_fritzbox-7530
+
+define Device/avm_fritzrepeater-3000
+	$(call Device/FitImageLzma)
+	DEVICE_DTS := qcom-ipq4019-fritzrepeater-3000
+	DEVICE_TITLE := AVM Fritz!Repeater 3000
+	DEVICE_PACKAGES := ath10k-firmware-qca9984-ct fritz-caldata fritz-tffs-nand ipq-wifi-avm_fritzrepeater-3000
+	IMAGES := sysupgrade.bin
+endef
+TARGET_DEVICES += avm_fritzrepeater-3000
+
 define Device/compex_wpj428
 	$(call Device/FitImage)
 	DEVICE_DTS := qcom-ipq4028-wpj428
@@ -124,6 +166,22 @@ define Device/engenius_eap1300
 	DEVICE_PACKAGES := ipq-wifi-engenius_eap1300
 endef
 TARGET_DEVICES += engenius_eap1300
+
+define Device/engenius_ens620ext
+        $(call Device/FitImage)
+        DEVICE_DTS := qcom-ipq4018-ens620ext
+        DEVICE_DTS_CONFIG := config@4
+        BLOCKSIZE := 64k
+        PAGESIZE := 256
+        DEVICE_TITLE := EnGenius ENS620EXT
+        IMAGE_SIZE := 21823488
+        KERNEL_SIZE := 5120k
+        FILESYSTEMS := squashfs
+        IMAGES := sysupgrade.bin
+        IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | check-size $$$$(IMAGE_SIZE) | append-metadata
+	DEVICE_PACKAGES := ipq-wifi-engenius_ens620ext
+endef
+TARGET_DEVICES += engenius_ens620ext
 
 define Device/glinet_gl-b1300
 	$(call Device/FitImage)
@@ -260,6 +318,31 @@ define Device/qcom_ap-dk04.1-c1
 	DEVICE_TITLE := QCA AP-DK04.1-C1
 endef
 TARGET_DEVICES += qcom_ap-dk04.1-c1
+
+define Device/qxwlan_e2600ac-c1
+	$(call Device/FitImage)
+	DEVICE_TITLE :=  Qxwlan E2600AC-C1 (nor flash)
+	BOARD_NAME := e2600ac-c1
+	DEVICE_DTS := qcom-ipq4019-qxwlan-e2600ac-c1
+	KERNEL_SIZE := 4096k
+	IMAGE_SIZE := 31232k
+	IMAGES := sysupgrade.bin
+	IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | append-metadata
+	DEVICE_PACKAGES := ipq-wifi-qxwlan_e2600ac
+endef
+TARGET_DEVICES += qxwlan_e2600ac-c1
+
+define Device/qxwlan_e2600ac-c2
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	DEVICE_DTS := qcom-ipq4019-qxwlan-e2600ac-c2
+	KERNEL_INSTALL := 1
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	DEVICE_TITLE := Qxwlan E2600AC-C2 (nornand flash)
+	DEVICE_PACKAGES := ipq-wifi-qxwlan_e2600ac
+endef
+TARGET_DEVICES += qxwlan_e2600ac-c2
 
 define Device/zyxel_nbg6617
 	$(call Device/FitImageLzma)

@@ -177,6 +177,19 @@ define Device/tplink_tl-wa801nd-v5
 endef
 TARGET_DEVICES += tplink_tl-wa801nd-v5
 
+define Device/tplink_tl-wr802n-v4
+  $(Device/tplink)
+  DTS := TL-WR802NV4
+  IMAGE_SIZE := 7808k
+  DEVICE_TITLE := TP-Link TL-WR802N v4
+  TPLINK_FLASHLAYOUT := 8Mmtk
+  TPLINK_HWID := 0x08020004
+  TPLINK_HWREV := 0x1
+  TPLINK_HWREVADD := 0x4
+  TPLINK_HVERSION := 3
+endef
+TARGET_DEVICES += tplink_tl-wr802n-v4
+
 define Device/tl-wr840n-v4
   $(Device/tplink)
   DTS := TL-WR840NV4
@@ -352,6 +365,15 @@ define Device/wavlink_wl-wn570ha1
 endef
 TARGET_DEVICES += wavlink_wl-wn570ha1
 
+define Device/wavlink_wl-wn575a3
+  DTS := WL-WN575A3
+  IMAGE_SIZE := $(ralink_default_fw_size_8M)
+  DEVICE_TITLE := Wavlink WL-WN575A3
+  DEVICE_PACKAGES := kmod-mt76x2
+  SUPPORTED_DEVICES += wl-wn575a3
+endef
+TARGET_DEVICES += wavlink_wl-wn575a3
+
 define Device/wcr-1166ds
   DTS := WCR-1166DS
   BUFFALO_TAG_PLATFORM := MTK
@@ -369,14 +391,6 @@ define Device/wcr-1166ds
 endef
 TARGET_DEVICES += wcr-1166ds
 
-define Device/wl-wn575a3
-  DTS := WL-WN575A3
-  IMAGE_SIZE := $(ralink_default_fw_size_8M)
-  DEVICE_TITLE := Wavlink WL-WN575A3
-  DEVICE_PACKAGES := kmod-mt76x2
-endef
-TARGET_DEVICES += wl-wn575a3
-
 define Device/widora_neo-16m
   DTS := WIDORA-NEO-16M
   IMAGE_SIZE := $(ralink_default_fw_size_16M)
@@ -393,6 +407,13 @@ define Device/widora_neo-32m
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci
 endef
 TARGET_DEVICES += widora_neo-32m
+
+define Device/wiznet_wizfi630s
+  DTS := WIZFI630S
+  IMAGE_SIZE := $(ralink_default_fw_size_32M)
+  DEVICE_TITLE := WIZnet WizFi630S
+endef
+TARGET_DEVICES += wiznet_wizfi630s
 
 define Device/wrtnode2p
   DTS := WRTNODE2P
