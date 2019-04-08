@@ -155,10 +155,6 @@
 	};
 };
 
-&hsdma {
-	status = "okay";
-};
-
 &pcie {
 	status = "okay";
 };
@@ -168,7 +164,6 @@
 		compatible = "pci14c3,7615";
 		reg = <0x0000 0 0 0 0>;
 		mediatek,mtd-eeprom = <&factory 0x0000>;
-		ieee80211-freq-limit = <2400000 2500000>;
 	};
 };
 

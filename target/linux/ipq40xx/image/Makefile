@@ -125,10 +125,19 @@ define Device/avm_fritzbox-7530
 	$(call Device/FitImageLzma)
 	DEVICE_DTS := qcom-ipq4019-fritzbox-7530
 	DEVICE_TITLE := AVM Fritz!Box 7530
-	DEVICE_PACKAGES := fritz-caldata ipq-wifi-avm_fritzbox-7530
+	DEVICE_PACKAGES := fritz-caldata fritz-tffs-nand ipq-wifi-avm_fritzbox-7530
 	IMAGES := sysupgrade.bin
 endef
 TARGET_DEVICES += avm_fritzbox-7530
+
+define Device/avm_fritzrepeater-3000
+	$(call Device/FitImageLzma)
+	DEVICE_DTS := qcom-ipq4019-fritzrepeater-3000
+	DEVICE_TITLE := AVM Fritz!Repeater 3000
+	DEVICE_PACKAGES := ath10k-firmware-qca9984-ct fritz-caldata fritz-tffs-nand ipq-wifi-avm_fritzrepeater-3000
+	IMAGES := sysupgrade.bin
+endef
+TARGET_DEVICES += avm_fritzrepeater-3000
 
 define Device/compex_wpj428
 	$(call Device/FitImage)
@@ -157,6 +166,22 @@ define Device/engenius_eap1300
 	DEVICE_PACKAGES := ipq-wifi-engenius_eap1300
 endef
 TARGET_DEVICES += engenius_eap1300
+
+define Device/engenius_ens620ext
+        $(call Device/FitImage)
+        DEVICE_DTS := qcom-ipq4018-ens620ext
+        DEVICE_DTS_CONFIG := config@4
+        BLOCKSIZE := 64k
+        PAGESIZE := 256
+        DEVICE_TITLE := EnGenius ENS620EXT
+        IMAGE_SIZE := 21823488
+        KERNEL_SIZE := 5120k
+        FILESYSTEMS := squashfs
+        IMAGES := sysupgrade.bin
+        IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | check-size $$$$(IMAGE_SIZE) | append-metadata
+	DEVICE_PACKAGES := ipq-wifi-engenius_ens620ext
+endef
+TARGET_DEVICES += engenius_ens620ext
 
 define Device/glinet_gl-b1300
 	$(call Device/FitImage)

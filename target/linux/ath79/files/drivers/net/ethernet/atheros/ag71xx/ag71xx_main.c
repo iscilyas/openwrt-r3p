@@ -162,7 +162,7 @@ static void ag71xx_ring_rx_clean(struct ag71xx *ag)
 
 	for (i = 0; i < ring_size; i++)
 		if (ring->buf[i].rx_buf) {
-			dma_unmap_single(&ag->dev->dev, ring->buf[i].dma_addr,
+			dma_unmap_single(&ag->pdev->dev, ring->buf[i].dma_addr,
 					 ag->rx_buf_size, DMA_FROM_DEVICE);
 			skb_free_frag(ring->buf[i].rx_buf);
 		}
@@ -187,7 +187,7 @@ static bool ag71xx_fill_rx_buf(struct ag71xx *ag, struct ag71xx_buf *buf,
 		return false;
 
 	buf->rx_buf = data;
-	buf->dma_addr = dma_map_single(&ag->dev->dev, data, ag->rx_buf_size,
+	buf->dma_addr = dma_map_single(&ag->pdev->dev, data, ag->rx_buf_size,
 				       DMA_FROM_DEVICE);
 	desc->data = (u32) buf->dma_addr + offset;
 	return true;
@@ -276,7 +276,7 @@ static int ag71xx_rings_init(struct ag71xx *ag)
 	if (!tx->buf)
 		return -ENOMEM;
 
-	tx->descs_cpu = dma_alloc_coherent(NULL, ring_size * AG71XX_DESC_SIZE,
+	tx->descs_cpu = dma_alloc_coherent(&ag->pdev->dev, ring_size * AG71XX_DESC_SIZE,
 					   &tx->descs_dma, GFP_ATOMIC);
 	if (!tx->descs_cpu) {
 		kfree(tx->buf);
@@ -299,7 +299,7 @@ static void ag71xx_rings_free(struct ag71xx *ag)
 	int ring_size = BIT(tx->order) + BIT(rx->order);
 
 	if (tx->descs_cpu)
-		dma_free_coherent(NULL, ring_size * AG71XX_DESC_SIZE,
+		dma_free_coherent(&ag->pdev->dev, ring_size * AG71XX_DESC_SIZE,
 				  tx->descs_cpu, tx->descs_dma);
 
 	kfree(tx->buf);
@@ -892,7 +892,7 @@ static netdev_tx_t ag71xx_hard_start_xmit(struct sk_buff *skb,
 		goto err_drop;
 	}
 
-	dma_addr = dma_map_single(&dev->dev, skb->data, skb->len,
+	dma_addr = dma_map_single(&ag->pdev->dev, skb->data, skb->len,
 				  DMA_TO_DEVICE);
 
 	i = ring->curr & ring_mask;
@@ -934,7 +934,7 @@ static netdev_tx_t ag71xx_hard_start_xmit(struct sk_buff *skb,
 	return NETDEV_TX_OK;
 
 err_drop_unmap:
-	dma_unmap_single(&dev->dev, dma_addr, skb->len, DMA_TO_DEVICE);
+	dma_unmap_single(&ag->pdev->dev, dma_addr, skb->len, DMA_TO_DEVICE);
 
 err_drop:
 	dev->stats.tx_dropped++;
@@ -985,10 +985,16 @@ static int ag71xx_do_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	return -EOPNOTSUPP;
 }
 
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4,15,0))
 static void ag71xx_oom_timer_handler(unsigned long data)
 {
 	struct net_device *dev = (struct net_device *) data;
 	struct ag71xx *ag = netdev_priv(dev);
+#else
+static void ag71xx_oom_timer_handler(struct timer_list *t)
+{
+	struct ag71xx *ag = from_timer(ag, t, oom_timer);
+#endif
 
 	napi_schedule(&ag->napi);
 }
@@ -1141,7 +1147,7 @@ static int ag71xx_rx_packets(struct ag71xx *ag, int limit)
 		pktlen = desc->ctrl & pktlen_mask;
 		pktlen -= ETH_FCS_LEN;
 
-		dma_unmap_single(&dev->dev, ring->buf[i].dma_addr,
+		dma_unmap_single(&ag->pdev->dev, ring->buf[i].dma_addr,
 				 ag->rx_buf_size, DMA_FROM_DEVICE);
 
 		dev->stats.rx_packets++;
@@ -1283,20 +1289,6 @@ static irqreturn_t ag71xx_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
-#ifdef CONFIG_NET_POLL_CONTROLLER
-/*
- * Polling 'interrupt' - used by things like netconsole to send skbs
- * without having to re-enable interrupts. It's not called while
- * the interrupt routine is executing.
- */
-static void ag71xx_netpoll(struct net_device *dev)
-{
-	disable_irq(dev->irq);
-	ag71xx_interrupt(dev->irq, dev);
-	enable_irq(dev->irq);
-}
-#endif
-
 static int ag71xx_change_mtu(struct net_device *dev, int new_mtu)
 {
 	struct ag71xx *ag = netdev_priv(dev);
@@ -1317,9 +1309,6 @@ static const struct net_device_ops ag71xx_netdev_ops = {
 	.ndo_change_mtu		= ag71xx_change_mtu,
 	.ndo_set_mac_address	= eth_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
-#ifdef CONFIG_NET_POLL_CONTROLLER
-	.ndo_poll_controller	= ag71xx_netpoll,
-#endif
 };
 
 static int ag71xx_probe(struct platform_device *pdev)
@@ -1418,9 +1407,13 @@ static int ag71xx_probe(struct platform_device *pdev)
 
 	INIT_DELAYED_WORK(&ag->restart_work, ag71xx_restart_work_func);
 
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4,15,0))
 	init_timer(&ag->oom_timer);
 	ag->oom_timer.data = (unsigned long) dev;
 	ag->oom_timer.function = ag71xx_oom_timer_handler;
+#else
+	timer_setup(&ag->oom_timer, ag71xx_oom_timer_handler, 0);
+#endif
 
 	tx_size = AG71XX_TX_RING_SIZE_DEFAULT;
 	ag->rx_ring.order = ag71xx_ring_size_order(AG71XX_RX_RING_SIZE_DEFAULT);
