@@ -501,6 +501,15 @@ define Device/ocedo_raccoon
 endef
 TARGET_DEVICES += ocedo_raccoon
 
+define Device/ocedo_ursus
+  ATH_SOC := qca9558
+  DEVICE_TITLE := OCEDO Ursus
+  DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca988x-ct
+  IMAGE_SIZE := 7424k
+  IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | append-metadata | check-size $$$$(IMAGE_SIZE)
+endef
+TARGET_DEVICES += ocedo_ursus
+
 define Device/openmesh_om5p-ac-v2
   ATH_SOC := qca9558
   DEVICE_TITLE := OpenMesh OM5P-AC v2
@@ -537,13 +546,33 @@ TARGET_DEVICES += pcs_cr5000
 
 define Device/netgear_wndr3x00
   ATH_SOC := ar7161
-  KERNEL := kernel-bin | append-dtb | lzma -d20 | netgear-uImage lzma
-  IMAGES += factory.img
   IMAGE/default := append-kernel | pad-to $$$$(BLOCKSIZE) | netgear-squashfs | append-rootfs | pad-rootfs
-  IMAGE/sysupgrade.bin := $$(IMAGE/default) | append-metadata | check-size $$$$(IMAGE_SIZE)
-  IMAGE/factory.img := $$(IMAGE/default) | netgear-dni | check-size $$$$(IMAGE_SIZE)
   DEVICE_PACKAGES := kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-usb-ledtrig-usbport kmod-leds-reset kmod-owl-loader
+  $(Device/netgear_ath79)
 endef
+
+define Device/netgear_ex7300_ex6400
+  ATH_SOC := qca9558
+  NETGEAR_KERNEL_MAGIC := 0x27051956
+  NETGEAR_BOARD_ID := EX7300series
+  NETGEAR_HW_ID := 29765104+16+0+128
+  IMAGE_SIZE := 15552k
+  IMAGE/default := append-kernel | pad-offset $$$$(BLOCKSIZE) 64 | netgear-rootfs | pad-rootfs
+  DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca99x0-ct
+  $(Device/netgear_ath79)
+endef
+
+define Device/netgear_ex6400
+  $(Device/netgear_ex7300_ex6400)
+  DEVICE_TITLE := NETGEAR EX6400
+endef
+TARGET_DEVICES += netgear_ex6400
+
+define Device/netgear_ex7300
+  $(Device/netgear_ex7300_ex6400)
+  DEVICE_TITLE := NETGEAR EX7300
+endef
+TARGET_DEVICES += netgear_ex7300
 
 define Device/netgear_wndr3700
   $(Device/netgear_wndr3x00)
