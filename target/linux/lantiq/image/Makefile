@@ -553,6 +553,7 @@ define Device/zyxel_p-2812hnu-f1
   DEVICE_DTS := P2812HNUF1
   DEVICE_TITLE := ZyXEL P-2812HNU-F1
   DEVICE_PACKAGES := kmod-rt2800-pci wpad-basic kmod-usb-dwc2 kmod-usb-ledtrig-usbport
+  KERNEL_SIZE := 3072k
   SUPPORTED_DEVICES += P2812HNUF1
 endef
 TARGET_DEVICES += zyxel_p-2812hnu-f1
@@ -663,6 +664,29 @@ define Device/avm_fritz7360sl
   SUPPORTED_DEVICES += FRITZ7360SL
 endef
 TARGET_DEVICES += avm_fritz7360sl
+
+define Device/avm_fritz7412
+  $(Device/AVM)
+  $(Device/NAND)
+  BOARD_NAME := FRITZ7412
+  DEVICE_DTS := FRITZ7412
+  KERNEL_SIZE := 4096k
+  IMAGE_SIZE := 49152k
+  DEVICE_TITLE := AVM FRITZ!Box 7412
+  DEVICE_PACKAGES := kmod-ath9k kmod-owl-loader wpad-mini kmod-ltq-tapi kmod-ltq-vmmc fritz-tffs-nand fritz-caldata
+endef
+TARGET_DEVICES += avm_fritz7412
+
+define Device/avm_fritz7362sl
+  $(Device/AVM)
+  $(Device/NAND)
+  KERNEL_SIZE := 4096k
+  IMAGE_SIZE := 49152k
+  DEVICE_DTS := FRITZ7362SL
+  DEVICE_TITLE := AVM FRITZ!Box 7362 SL
+  DEVICE_PACKAGES := kmod-ath9k kmod-owl-loader wpad-basic kmod-usb-dwc2 fritz-tffs
+endef
+TARGET_DEVICES += avm_fritz7362sl
 
 define Device/arcadyan_vg3503j
   IMAGE_SIZE := 8000k

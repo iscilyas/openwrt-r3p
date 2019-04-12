@@ -154,10 +154,10 @@ endif
 
 
 # Disable noisy checks by default as in upstream
-ifeq ($(strip $(call kernel_patchver_ge,4.6.0)),1)
+ifeq ($(strip $(call kernel_patchver_ge,4.7.0)),1)
   DTC_FLAGS += -Wno-unit_address_vs_reg
 endif
-ifeq ($(strip $(call kernel_patchver_ge,4.11.0)),1)
+ifeq ($(strip $(call kernel_patchver_ge,4.12.0)),1)
   DTC_FLAGS += \
 	-Wno-unit_address_vs_reg \
 	-Wno-simple_bus_reg \
@@ -166,12 +166,12 @@ ifeq ($(strip $(call kernel_patchver_ge,4.11.0)),1)
 	-Wno-pci_device_bus_num \
 	-Wno-pci_device_reg
 endif
-ifeq ($(strip $(call kernel_patchver_ge,4.16.0)),1)
+ifeq ($(strip $(call kernel_patchver_ge,4.17.0)),1)
   DTC_FLAGS += \
 	-Wno-avoid_unnecessary_addr_size \
 	-Wno-alias_paths
 endif
-ifeq ($(strip $(call kernel_patchver_ge,4.17.0)),1)
+ifeq ($(strip $(call kernel_patchver_ge,4.18.0)),1)
   DTC_FLAGS += \
 	-Wno-graph_child_address \
 	-Wno-graph_port \
@@ -291,7 +291,7 @@ endef
 
 ifdef CONFIG_TARGET_ROOTFS_TARGZ
   define Image/Build/targz
-	$(TAR) -cp --numeric-owner --owner=0 --group=0 --sort=name \
+	$(TAR) -cp --numeric-owner --owner=0 --group=0 --mode=a-s --sort=name \
 		$(if $(SOURCE_DATE_EPOCH),--mtime="@$(SOURCE_DATE_EPOCH)") \
 		-C $(TARGET_DIR)/ . | gzip -9n > $(BIN_DIR)/$(IMG_PREFIX)$(if $(PROFILE_SANITIZED),-$(PROFILE_SANITIZED))-rootfs.tar.gz
   endef
@@ -558,6 +558,7 @@ Target-Profile: DEVICE_$(1)
 Target-Profile-Name: $(DEVICE_TITLE)
 Target-Profile-Packages: $(DEVICE_PACKAGES)
 Target-Profile-hasImageMetadata: $(if $(foreach image,$(IMAGES),$(findstring append-metadata,$(IMAGE/$(image)))),1,0)
+Target-Profile-SupportedDevices: $(SUPPORTED_DEVICES)
 Target-Profile-Description:
 $(DEVICE_DESCRIPTION)
 @@

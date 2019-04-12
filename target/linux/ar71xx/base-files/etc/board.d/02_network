@@ -68,12 +68,14 @@ ar71xx_setup_interfaces()
 	ap91-5g|\
 	aw-nr580|\
 	bullet-m|\
+	bullet-m-xw|\
 	c-55|\
 	cap324|\
 	cap4200ag|\
 	cf-e380ac-v1|\
 	cf-e380ac-v2|\
 	cpe210-v2|\
+	cpe210-v3|\
 	dr342|\
 	eap120|\
 	eap300v2|\
@@ -107,9 +109,11 @@ ar71xx_setup_interfaces()
 	rb-912uag-2hpnd|\
 	rb-912uag-5hpnd|\
 	rb-921gs-5hpacd-r2|\
+	rb-922uags-5hpacd|\
 	rb-lhg-5nd|\
 	rb-mapl-2nd|\
 	rb-sxt2n|\
+	rb-sxt-2nd-r3|\
 	rb-sxt5n|\
 	rb-wap-2nd|\
 	rb-wapr-2nd|\
@@ -191,7 +195,6 @@ ar71xx_setup_interfaces()
 	all0315n|\
 	dlan-hotspot|\
 	dlan-pro-500-wp|\
-	ens202ext|\
 	ja76pf2|\
 	rocket-m-ti|\
 	ubnt-unifi-outdoor)
@@ -580,6 +583,11 @@ ar71xx_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0@eth0" "1:lan:1" "2:lan:2" "3:lan:3" "4:lan:4" "5:wan"
 		;;
+	ens202ext)
+		ucidef_set_interfaces_lan_wan "eth1.1" "eth1.2"
+		ucidef_add_switch "switch0" \
+			"0@eth1" "2:lan:1" "3:lan:2" "4:lan:3" "5:lan:4" "1:wan"
+		;;
 	*)
 		ucidef_set_interfaces_lan_wan "eth0" "eth1"
 		;;
@@ -595,6 +603,10 @@ ar71xx_setup_macs()
 	case $board in
 	archer-c7-v4)
 		base_mac=$(mtd_get_mac_binary config 8)
+		wan_mac=$(macaddr_add "$base_mac" 1)
+		;;
+	archer-c7-v5)
+		base_mac=$(mtd_get_mac_binary info 8)
 		wan_mac=$(macaddr_add "$base_mac" 1)
 		;;
 	dgl-5500-a1|\
