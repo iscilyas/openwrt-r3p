@@ -66,6 +66,14 @@ define Device/gl-mt300n-v2
 endef
 TARGET_DEVICES += gl-mt300n-v2
 
+define Device/glinet_vixmini
+  DTS := VIXMINI
+  IMAGE_SIZE := 7872k
+  DEVICE_TITLE := GL.iNet VIXMINI
+  SUPPORTED_DEVICES += vixmini
+endef
+TARGET_DEVICES += glinet_vixmini
+
 define Device/hc5661a
   DTS := HC5661A
   IMAGE_SIZE := $(ralink_default_fw_size_16M)
@@ -155,6 +163,13 @@ define Device/pbr-d1
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci
 endef
 TARGET_DEVICES += pbr-d1
+
+define Device/rakwireless_rak633
+  DTS := RAK633
+  DEVICE_TITLE := Rakwireless RAK633
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci
+endef
+TARGET_DEVICES += rakwireless_rak633
 
 define Device/skylab_skw92a
   DTS := SKW92A
