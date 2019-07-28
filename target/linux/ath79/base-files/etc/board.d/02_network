@@ -9,10 +9,15 @@ ath79_setup_interfaces()
 	local board="$1"
 
 	case "$board" in
+	adtran,bsap1800-v2|\
+	adtran,bsap1840|\
+	aruba,ap-105|\
 	avm,fritz300e|\
 	devolo,dvl1200i|\
 	devolo,dvl1750c|\
 	devolo,dvl1750i|\
+	devolo,dvl1750x|\
+	engenius,ecb1750|\
 	glinet,ar300m-lite|\
 	netgear,ex6400|\
 	netgear,ex7300|\
@@ -23,7 +28,12 @@ ath79_setup_interfaces()
 	pqi,air-pen|\
 	tplink,cpe210-v2|\
 	tplink,cpe210-v3|\
+	tplink,cpe510-v2|\
+	tplink,cpe510-v3|\
+	tplink,cpe610-v1|\
 	tplink,re350k-v1|\
+	tplink,re355-v1|\
+	tplink,re450-v1|\
 	tplink,re450-v2|\
 	tplink,tl-mr10u|\
 	tplink,tl-mr3020-v1|\
@@ -47,20 +57,35 @@ ath79_setup_interfaces()
 	pcs,cr3000|\
 	tplink,archer-c58-v1|\
 	tplink,archer-c59-v1)
-		ucidef_set_interface_wan "eth0"
+		ucidef_set_interface_wan "eth1"
 		ucidef_add_switch "switch0" \
-			"0@eth1" "1:lan:1" "2:lan:4" "3:lan:3" "4:lan:2"
+			"0@eth0" "1:lan:1" "2:lan:4" "3:lan:3" "4:lan:2"
 		;;
 	buffalo,bhr-4grv|\
 	buffalo,wzr-hp-g450h)
 		ucidef_add_switch "switch0" \
 			"0@eth0" "2:lan" "3:lan" "4:lan" "5:lan" "1:wan"
 		;;
-	buffalo,bhr-4grv2)
+	buffalo,bhr-4grv2|\
+	trendnet,tew-823dru)
 		ucidef_add_switch "switch0" \
 			"0@eth1" "1:lan" "2:lan" "3:lan" "4:lan" "5:wan" "6@eth0"
 		;;
-	buffalo,wzr-hp-ag300h)
+	buffalo,whr-g301n)
+		ucidef_set_interface_wan "eth0"
+		ucidef_add_switch "switch0" \
+			"0@eth1" "1:lan:4" "2:lan:3" "3:lan:2" "4:lan:1"
+		;;
+	buffalo,wzr-hp-ag300h|\
+	tplink,archer-c25-v1|\
+	tplink,tl-mr3220-v1|\
+	tplink,tl-mr3420-v1|\
+	tplink,tl-wr841-v7|\
+	tplink,tl-wr841-v9|\
+	tplink,tl-wr841-v11|\
+	tplink,tl-wr842n-v1|\
+	tplink,tl-wr842n-v3|\
+	ubnt,airrouter)
 		ucidef_set_interface_wan "eth1"
 		ucidef_add_switch "switch0" \
 			"0@eth0" "1:lan:4" "2:lan:3" "3:lan:2" "4:lan:1"
@@ -69,15 +94,10 @@ ath79_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0@eth0" "1:lan:1" "3:lan:4" "4:lan:3" "5:lan:2" "2:wan"
 		;;
-	comfast,cf-e5|\
-	glinet,gl-ar150|\
-	glinet,gl-ar300m-nand|\
-	glinet,gl-ar300m-nor|\
-	glinet,gl-x750|\
-	tplink,tl-wr810n-v1|\
-	tplink,tl-wr810n-v2|\
-	ubnt,routerstation|\
-	yuncore,a770)
+	comfast,cf-e110n-v2|\
+	comfast,cf-e120a-v3|\
+	ubnt,nanostation-m|\
+	ubnt,routerstation)
 		ucidef_set_interfaces_lan_wan "eth1" "eth0"
 		;;
 	devolo,dvl1200e|\
@@ -92,10 +112,12 @@ ath79_setup_interfaces()
 		;;
 	dlink,dir-825-c1|\
 	dlink,dir-835-a1|\
+	dlink,dir-842-c2|\
 	dlink,dir-859-a1|\
 	engenius,epg5000|\
 	tplink,archer-c2-v3|\
-	tplink,tl-wr1043nd-v4)
+	tplink,tl-wr1043nd-v4|\
+	tplink,tl-wr1043n-v5)
 		ucidef_add_switch "switch0" \
 			"0@eth0" "1:lan:4" "2:lan:3" "3:lan:2" "4:lan:1" "5:wan"
 		;;
@@ -123,7 +145,8 @@ ath79_setup_interfaces()
 	iodata,wn-ac1600dgr|\
 	iodata,wn-ac1600dgr2|\
 	iodata,wn-ag300dgr|\
-	pcs,cr5000)
+	pcs,cr5000|\
+	wd,mynet-n750)
 		ucidef_add_switch "switch0" \
 			"0@eth0" "1:lan" "2:lan" "3:lan" "4:lan" "5:wan"
 	;;
@@ -155,7 +178,12 @@ ath79_setup_interfaces()
 		;;
 	netgear,wnr612-v2|\
 	on,n150r|\
-	tplink,tl-wr841-v7)
+	tplink,tl-wr740n-v1|\
+	tplink,tl-wr740n-v3|\
+	tplink,tl-wr741-v1|\
+	tplink,tl-wr743nd-v1|\
+	tplink,tl-wr841-v5|\
+	tplink,tl-wr941-v4)
 		ucidef_set_interface_wan "eth0"
 		ucidef_add_switch "switch0" \
 		"0@eth1" "1:lan" "2:lan" "3:lan" "4:lan"
@@ -164,9 +192,24 @@ ath79_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0@eth0" "3:lan:1" "5:lan:2" "4:wan"
 		;;
+	qihoo,c301)
+		ucidef_set_interface_wan "eth1"
+		ucidef_add_switch "switch0" \
+			"0@eth0" "2:lan" "3:lan"
+		;;
 	rosinson,wr818)
 		ucidef_add_switch "switch0" \
 			"0@eth0" "1:lan" "2:lan" "3:wan"
+		;;
+	tplink,archer-a7-v5|\
+	tplink,archer-c6-v2|\
+	tplink,archer-c7-v4|\
+	tplink,archer-c7-v5|\
+	tplink,tl-wdr3600-v1|\
+	tplink,tl-wdr4300-v1|\
+	tplink,tl-wr941n-v7-cn)
+		ucidef_add_switch "switch0" \
+			"0@eth0" "2:lan:1" "3:lan:2" "4:lan:3" "5:lan:4" "1:wan"
 		;;
 	tplink,archer-c5-v1|\
 	tplink,archer-c7-v1|\
@@ -175,26 +218,15 @@ ath79_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0@eth1" "2:lan" "3:lan" "4:lan" "5:lan" "6@eth0" "1:wan"
 		;;
-	buffalo,whr-g301n|\
-	tplink,tl-mr3220-v1|\
-	tplink,tl-mr3420-v1|\
-	tplink,tl-wr841-v9|\
-	tplink,tl-wr841-v11|\
-	tplink,tl-wr842n-v3|\
-	ubnt,airrouter)
-		ucidef_set_interface_wan "eth0"
+	tplink,archer-c60-v1|\
+	tplink,archer-c60-v2)
+		ucidef_set_interface_wan "eth1"
 		ucidef_add_switch "switch0" \
-			"0@eth1" "1:lan:4" "2:lan:3" "3:lan:2" "4:lan:1"
+			"0@eth0" "1:lan" "2:lan" "3:lan" "4:lan"
 		;;
-	tplink,archer-a7-v5|\
-	tplink,archer-c6-v2|\
-	tplink,archer-c7-v4|\
-	tplink,archer-c7-v5|\
-	tplink,tl-wdr3600|\
-	tplink,tl-wdr4300|\
-	tplink,tl-wr941n-v7-cn)
+	tplink,archer-d50-v1)
 		ucidef_add_switch "switch0" \
-			"0@eth0" "2:lan:1" "3:lan:2" "4:lan:3" "5:lan:4" "1:wan"
+			"0@eth0" "2:lan:3" "3:lan:2" "4:lan:1" "1:wan"
 		;;
 	tplink,tl-wr1043nd-v1)
 		ucidef_add_switch "switch0" \
@@ -209,37 +241,21 @@ ath79_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"1:lan" "2:lan" "3:lan" "4:lan" "0:wan" "9@eth0"
 		;;
-	tplink,tl-wr740n-v1|\
-	tplink,tl-wr740n-v3|\
-	tplink,tl-wr741-v1|\
-	tplink,tl-wr743nd-v1|\
-	tplink,tl-wr841-v5|\
-	tplink,tl-wr941-v4)
-		ucidef_set_interface_wan "eth0"
-		ucidef_add_switch "switch0" \
-			"0@eth1" "1:lan" "2:lan" "3:lan" "4:lan"
-		;;
-	tplink,tl-wr710n-v1)
-		ucidef_set_interface_wan "eth0"
-		ucidef_add_switch "switch0" \
-			"0@eth1" "3:lan"
-		;;
 	tplink,tl-wr740n-v4|\
 	tplink,tl-wr741nd-v4|\
 	tplink,tl-wr841-v8|\
-	tplink,tl-wr842n-v1|\
 	tplink,tl-wr842n-v2)
-		ucidef_set_interface_wan "eth0"
+		ucidef_set_interface_wan "eth1"
 		ucidef_add_switch "switch0" \
-			"0@eth1" "1:lan:4" "2:lan:1" "3:lan:2" "4:lan:3"
+			"0@eth0" "1:lan:4" "2:lan:1" "3:lan:2" "4:lan:3"
 		;;
 	tplink,tl-wr941-v2)
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" "wan"
 		;;
 	ubnt,acb-isp)
-		ucidef_set_interface_wan "eth0"
+		ucidef_set_interface_wan "eth1"
 		ucidef_add_switch "switch0" \
-			"0@eth1" "2:lan:1" "3:lan:3" "4:lan:2"
+			"0@eth0" "2:lan:1" "3:lan:3" "4:lan:2"
 		;;
 	ubnt,routerstation-pro)
 		ucidef_set_interface_wan "eth0"
@@ -250,10 +266,11 @@ ath79_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0@eth0" "5:lan" "1:wan"
 		;;
+	zbtlink,zbt-wd323|\
 	xiaomi,mi-router-4q)
-		ucidef_set_interface_wan "eth0"
+		ucidef_set_interface_wan "eth1"
 		ucidef_add_switch "switch0" \
-			"0@eth1" "3:lan:1" "4:lan:2"
+			"0@eth0" "3:lan:1" "4:lan:2"
 		;;
 	*)
 		ucidef_set_interfaces_lan_wan "eth0" "eth1"
@@ -266,6 +283,11 @@ ath79_setup_macs()
 	local board="$1"
 
 	case "$board" in
+	adtran,bsap1800-v2|\
+	adtran,bsap1840)
+		fconfig -s -w -d $(find_mtd_part "RedBoot config") -n boot_cntb -x 0
+		lan_mac=$(mtd_get_mac_binary "Board data" 2)
+		;;
 	avm,fritz300e)
 		lan_mac=$(fritz_tffs -n maca -i $(find_mtd_part "tffs (1)"))
 		;;
@@ -282,14 +304,19 @@ ath79_setup_macs()
 		lan_mac=$(mtd_get_mac_text "mac" 4)
 		wan_mac=$(mtd_get_mac_text "mac" 24)
 		;;
+	dlink,dir-842-c2|\
 	dlink,dir-859-a1|\
-	nec,wg1200cr)
+	nec,wg1200cr|\
+	wd,mynet-n750)
 		lan_mac=$(mtd_get_mac_ascii devdata "lanmac")
 		wan_mac=$(mtd_get_mac_ascii devdata "wanmac")
 		;;
 	elecom,wrc-1750ghbk2-i|\
 	elecom,wrc-300ghbk2-i)
-		wan_mac=$(macaddr_add "$(mtd_get_mac_binary ART 4098)" -2)
+		wan_mac=$(macaddr_add "$(mtd_get_mac_binary art 4098)" -2)
+		;;
+	engenius,ecb1750)
+		lan_mac=$(mtd_get_mac_ascii u-boot-env ethaddr)
 		;;
 	engenius,epg5000|\
 	iodata,wn-ac1167dgr|\
@@ -326,27 +353,30 @@ ath79_setup_macs()
 		lan_mac=$(k2t_get_mac "lan_mac")
 		wan_mac=$(k2t_get_mac "wan_mac")
 		;;
+	qihoo,c301)
+		lan_mac=$(mtd_get_mac_ascii devdata lanmac)
+		wan_mac=$(mtd_get_mac_ascii devdata wanmac)
+		;;
 	rosinson,wr818)
 		wan_mac=$(mtd_get_mac_binary factory 0)
 		lan_mac=$(macaddr_setbit_la "$wan_mac")
 		;;
 	tplink,archer-a7-v5|\
-	tplink,archer-c7-v5)
+	tplink,archer-c7-v4|\
+	tplink,archer-c7-v5|\
+	tplink,tl-wr1043nd-v4|\
+	tplink,tl-wr1043n-v5)
 		base_mac=$(mtd_get_mac_binary info 8)
-		wan_mac=$(macaddr_add "$base_mac" 1)
-		;;
-	tplink,archer-c7-v4)
-		base_mac=$(mtd_get_mac_binary config 8)
-		wan_mac=$(macaddr_add "$base_mac" 1)
-		;;
-	tplink,tl-wr1043nd-v4)
-		base_mac=$(mtd_get_mac_binary product-info 8)
 		wan_mac=$(macaddr_add "$base_mac" 1)
 		;;
 	tplink,tl-wr941-v2|\
 	tplink,tl-wr941n-v7-cn)
 		base_mac=$(mtd_get_mac_binary u-boot 130048)
 		wan_mac=$(macaddr_add "$base_mac" 1)
+		;;
+	trendnet,tew-823dru)
+		lan_mac=$(mtd_get_mac_text mac 4)
+		wan_mac=$(mtd_get_mac_text mac 24)
 		;;
 	ubnt,routerstation|\
 	ubnt,routerstation-pro)

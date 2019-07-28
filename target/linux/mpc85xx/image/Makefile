@@ -47,23 +47,31 @@ endef
 ifeq ($(SUBTARGET),generic)
 
 define Device/tl-wdr4900-v1
-  DEVICE_TITLE := TP-Link TL-WDR4900
+  DEVICE_VENDOR := TP-Link
+  DEVICE_MODEL := TL-WDR4900
+  DEVICE_VARIANT := v1
   TPLINK_HWID := 0x49000001
   TPLINK_HWREV := 1
   TPLINK_FLASHLAYOUT := 16Mppc
   KERNEL_SIZE := 2684k
-  KERNEL_NAME := cuImage.tl-wdr4900-v1
+  KERNEL_NAME := simpleImage.tl-wdr4900-v1
   KERNEL_INITRAMFS :=
+  KERNEL := kernel-bin | uImage none
+  KERNEL_ENTRY := 0x1000000
+  KERNEL_LOADADDR := 0x1000000
   SUPPORTED_DEVICES:=tl-wdr4900-v1 tplink,tl-wdr4900-v1
+  ARTIFACTS := fdt.bin
+  ARTIFACT/fdt.bin := append-dtb
   IMAGES := fdt.bin factory.bin sysupgrade.bin
-  IMAGE/fdt.bin := append-dtb
   IMAGE/sysupgrade.bin := append-rootfs | mktplinkfw sysupgrade | append-metadata
   IMAGE/factory.bin := append-rootfs | mktplinkfw factory
 endef
-#TARGET_DEVICES += tl-wdr4900-v1
+TARGET_DEVICES += tl-wdr4900-v1
 
 define Device/red-15w-rev1
-  DEVICE_TITLE := Sophos RED 15w Rev.1
+  DEVICE_VENDOR := Sophos
+  DEVICE_MODEL := RED 15w
+  DEVICE_VARIANT := Rev.1
   # Original firmware uses a dedicated DTB-partition.
   # The bootloader however supports FIT-images.
   KERNEL = kernel-bin | gzip | fit gzip $(KDIR)/image-$$(DEVICE_DTS).dtb
@@ -78,10 +86,11 @@ endif
 ifeq ($(SUBTARGET),p1020)
 
 define Device/hiveap-330
-  DEVICE_TITLE := Aerohive HiveAP-330
+  DEVICE_VENDOR := Aerohive
+  DEVICE_MODEL := HiveAP-330
   DEVICE_PACKAGES := kmod-tpm-i2c-atmel
   BLOCKSIZE := 128k
-  KERNEL_NAME := zImage
+  KERNEL := kernel-bin | gzip | uImage gzip
   KERNEL_SIZE := 8m
   KERNEL_INITRAMFS := copy-file $(KDIR)/vmlinux-initramfs | uImage none
   SUPPORTED_DEVICES := aerohive,hiveap-330
@@ -95,7 +104,8 @@ endef
 TARGET_DEVICES += hiveap-330
 
 define Device/panda
-  DEVICE_TITLE := OCEDO Panda
+  DEVICE_VENDOR := OCEDO
+  DEVICE_MODEL := Panda
   DEVICE_PACKAGES := kmod-rtc-ds1307 uboot-envtools
   KERNEL = kernel-bin | gzip | fit gzip $(KDIR)/image-$$(DEVICE_DTS).dtb
   PAGESIZE := 2048
@@ -113,7 +123,8 @@ endif
 ifeq ($(SUBTARGET),p2020)
 
 define Device/p2020rdb
-  DEVICE_TITLE := Freescale P2020RDB
+  DEVICE_VENDOR := Freescale
+  DEVICE_MODEL := P2020RDB
   DEVICE_DTS_DIR := $(DTS_DIR)/fsl
   DEVICE_PACKAGES := kmod-hwmon-core kmod-hwmon-lm90 kmod-rtc-ds1307 \
 	kmod-gpio-pca953x kmod-eeprom-at24

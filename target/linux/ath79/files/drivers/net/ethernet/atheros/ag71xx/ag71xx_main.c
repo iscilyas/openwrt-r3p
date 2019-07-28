@@ -581,6 +581,7 @@ static void ath79_mii0_ctrl_set_if(struct ag71xx *ag)
 		mii_if = AR71XX_MII0_CTRL_IF_GMII;
 		break;
 	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
 		mii_if = AR71XX_MII0_CTRL_IF_RGMII;
 		break;
 	case PHY_INTERFACE_MODE_RMII:
@@ -603,6 +604,7 @@ static void ath79_mii1_ctrl_set_if(struct ag71xx *ag)
 		mii_if = AR71XX_MII1_CTRL_IF_RMII;
 		break;
 	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
 		mii_if = AR71XX_MII1_CTRL_IF_RGMII;
 		break;
 	default:
@@ -946,18 +948,9 @@ err_drop:
 static int ag71xx_do_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 {
 	struct ag71xx *ag = netdev_priv(dev);
-	int ret;
+
 
 	switch (cmd) {
-	case SIOCETHTOOL:
-		if (ag->phy_dev == NULL)
-			break;
-
-		spin_lock_irq(&ag->lock);
-		ret = phy_ethtool_ioctl(ag->phy_dev, (void *) ifr->ifr_data);
-		spin_unlock_irq(&ag->lock);
-		return ret;
-
 	case SIOCSIFHWADDR:
 		if (copy_from_user
 			(dev->dev_addr, ifr->ifr_data, sizeof(dev->dev_addr)))

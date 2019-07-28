@@ -91,7 +91,8 @@ case "$FIRMWARE" in
 	devolo,dvl1200i|\
 	devolo,dvl1750c|\
 	devolo,dvl1750e|\
-	devolo,dvl1750i)
+	devolo,dvl1750i|\
+	devolo,dvl1750x)
 		ath10kcal_extract "art" 20480 2116
 		ath10kcal_patch_mac_crc $(macaddr_add $(mtd_get_mac_binary art 0) -1)
 		;;
@@ -100,7 +101,11 @@ case "$FIRMWARE" in
 		ath10kcal_patch_mac $(mtd_get_mac_ascii devdata "wlan5mac")
 		;;
 	elecom,wrc-1750ghbk2-i)
-		ath10kcal_extract "ART" 20480 2116
+		ath10kcal_extract "art" 20480 2116
+		;;
+	engenius,ecb1750)
+		ath10kcal_extract "art" 20480 2116
+		ath10kcal_patch_mac $(mtd_get_mac_ascii u-boot-env athaddr)
 		;;
 	engenius,epg5000|\
 	iodata,wn-ac1167dgr|\
@@ -108,12 +113,17 @@ case "$FIRMWARE" in
 		ath10kcal_extract "art" 20480 2116
 		ath10kcal_patch_mac $(macaddr_add $(mtd_get_mac_ascii u-boot-env ethaddr) +1)
 		;;
-	engenius,ews511ap|\
-	glinet,gl-ar750s|\
-	glinet,gl-x750|\
-	tplink,re450-v2)
+	engenius,ews511ap)
 		ath10kcal_extract "art" 20480 2116
 		ath10kcal_patch_mac $(macaddr_add $(cat /sys/class/net/eth0/address) +1)
+		;;
+	glinet,gl-ar750s)
+		ath10kcal_extract "art" 20480 2116
+		ath10kcal_patch_mac $(macaddr_add $(mtd_get_mac_binary art 0) +1)
+		;;
+	glinet,gl-x750)
+		ath10kcal_extract "art" 20480 2116
+		ath10kcal_patch_mac $(macaddr_add $(mtd_get_mac_binary art 0) +2)
 		;;
 	nec,wg800hp)
 		ath10kcal_extract "art" 20480 2116
@@ -125,27 +135,42 @@ case "$FIRMWARE" in
 		ath10kcal_patch_mac $(mtd_get_mac_binary art 12)
 		;;
 	openmesh,om5p-ac-v2)
-		ath10kcal_extract "ART" 20480 2116
+		ath10kcal_extract "art" 20480 2116
 		ath10kcal_patch_mac $(macaddr_add $(cat /sys/class/net/eth0/address) +16)
 		;;
-	tplink,archer-c2-v3)
-		ath10kcal_extract "ART" 20480 2116
-		ath10kcal_patch_mac $(macaddr_add $(cat /sys/class/net/eth0/address) -1)
+	qihoo,c301)
+		ath10kcal_extract "radiocfg" 20480 2116
+		ath10kcal_patch_mac_crc $(mtd_get_mac_ascii devdata wlan5mac)
+		;;
+	tplink,archer-a7-v5|\
+	tplink,archer-c2-v3|\
+	tplink,archer-c7-v4|\
+	tplink,archer-c7-v5|\
+	tplink,archer-c25-v1)
+		ath10kcal_extract "art" 20480 2116
+		ath10kcal_patch_mac $(macaddr_add $(mtd_get_mac_binary info 8) -1)
 		;;
 	tplink,archer-c5-v1|\
 	tplink,archer-c7-v2)
 		ath10kcal_extract "art" 20480 2116
-		ath10kcal_patch_mac $(macaddr_add $(cat /sys/class/net/eth1/address) -1)
+		ath10kcal_patch_mac $(macaddr_add $(mtd_get_mac_binary u-boot 0x1fc00) -1)
 		;;
-	tplink,archer-a7-v5|\
-	tplink,archer-c7-v4|\
-	tplink,archer-c7-v5)
+	tplink,archer-d50-v1)
 		ath10kcal_extract "art" 20480 2116
-		ath10kcal_patch_mac $(macaddr_add $(cat /sys/class/net/eth0/address) -1)
+		ath10kcal_patch_mac $(macaddr_add $(mtd_get_mac_binary romfile 0xf100) +2)
 		;;
 	tplink,re350k-v1)
 		ath10kcal_extract "art" 20480 2116
-		ath10kcal_patch_mac $(macaddr_add $(cat /sys/class/net/eth0/address) +2)
+		ath10kcal_patch_mac $(macaddr_add $(mtd_get_mac_binary config 0x10008) +2)
+		;;
+	tplink,re355-v1|\
+	tplink,re450-v1)
+		ath10kcal_extract "art" 20480 2116
+		ath10kcal_patch_mac $(macaddr_add $(cat /sys/class/net/eth0/address) -2)
+		;;
+	tplink,re450-v2)
+		ath10kcal_extract "art" 20480 2116
+		ath10kcal_patch_mac $(macaddr_add $(mtd_get_mac_binary info 8) +1)
 		;;
 	ubnt,unifiac-lite|\
 	ubnt,unifiac-mesh|\
@@ -164,6 +189,7 @@ case "$FIRMWARE" in
 	;;
 "ath10k/pre-cal-pci-0000:00:00.0.bin")
 	case $board in
+	dlink,dir-842-c2|\
 	nec,wg1200cr)
 		ath10kcal_extract "art" 20480 12064
 		ath10kcal_patch_mac_crc $(mtd_get_mac_ascii devdata wlan5mac)
@@ -183,6 +209,8 @@ case "$FIRMWARE" in
 		;;
 	tplink,archer-c58-v1|\
 	tplink,archer-c59-v1|\
+	tplink,archer-c60-v1|\
+	tplink,archer-c60-v2|\
 	tplink,archer-c6-v2)
 		ath10kcal_extract "art" 20480 12064
 		ath10kcal_patch_mac_crc $(macaddr_add $(mtd_get_mac_binary mac 8) -1)

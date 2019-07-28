@@ -25,7 +25,6 @@ define Build/tegra-sdcard
 		-d $@-boot.scr \
 		$@.boot/boot.scr
 
-	PADDING="$(CONFIG_TARGET_IMAGES_PAD)" \
 	SIGNATURE="$(SIGNATURE)" \
 	$(SCRIPT_DIR)/gen_image_generic.sh \
 		$@ \
@@ -44,16 +43,17 @@ define Device/Default
   KERNEL_NAME := zImage
   KERNEL := kernel-bin
   PROFILES := Default
+  SUPPORTED_DEVICES := $(subst _,$(comma),$(1))
 endef
 
-define Device/trimslice
-  DEVICE_TITLE := CompuLab TrimSlice
+define Device/compulab_trimslice
+  DEVICE_VENDOR := CompuLab
+  DEVICE_MODEL := TrimSlice
   DEVICE_DTS := tegra20-trimslice
   DEVICE_PACKAGES := kmod-r8169 kmod-rt2800-usb kmod-rtc-em3027 \
 	kmod-usb-storage wpad-mini
-  SUPPORTED_DEVICES := compulab,trimslice
   UBOOT := trimslice-mmc
 endef
-TARGET_DEVICES += trimslice
+TARGET_DEVICES += compulab_trimslice
 
 $(eval $(call BuildImage))
