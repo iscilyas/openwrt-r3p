@@ -6,7 +6,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=mt7615e
+PKG_NAME:=mt7615x
 P4REV:=
 #PKG_VERSION:=MT7615_LinuxAP_V4.4.0.2_20160228
 #PKG_SOURCE:=MT7615_LinuxAP_V4.4.0.2_20160228.tar.bz2
@@ -41,7 +41,7 @@ include $(INCLUDE_DIR)/package.mk
 
 TAR_CMD=$(HOST_TAR) -C $(1)/ $(TAR_OPTIONS)
 
-define KernelPackage/mt7615e
+define KernelPackage/mt7615x
   CATEGORY:=MTK Properties
   TITLE:=MTK MT7615e wifi AP driver
   FILES:=$(PKG_BUILD_DIR)/mt_wifi_ap/mt7615e.ko
@@ -49,7 +49,7 @@ define KernelPackage/mt7615e
   MENU:=1
 endef
 
-define KernelPackage/mt7615e/config
+define KernelPackage/mt7615x/config
 #source "$(SOURCE)/config.in-4.4"
 #source "$(SOURCE)/config.in"
 	source "$(SOURCE)/Kconfig.mt_wifi"
@@ -69,7 +69,7 @@ define Build/Compile
 endef
 
 WIRELESS_DIR=etc/wireless/mt7615e/
-define KernelPackage/mt7615e/install
+define KernelPackage/mt7615x/install
 	$(INSTALL_DIR) $(1)/etc/init.d/
 	$(INSTALL_BIN) ./files/mt7615e $(1)/etc/init.d/
 	$(INSTALL_DIR) $(1)/lib/firmware/
@@ -90,4 +90,4 @@ define KernelPackage/mt7615e/install
 	fi
 endef
 
-$(eval $(call KernelPackage,mt7615e))
+$(eval $(call KernelPackage,mt7615x))
