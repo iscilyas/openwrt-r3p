@@ -31,6 +31,10 @@ start() {
 	do
 		/sbin/ifconfig $i up
 		/usr/sbin/brctl addif br-lan $i
+		if ! /sbin/uci get $UCI_IFPROP | grep -q $i
+		then
+			/sbin/uci set $UCI_IFPROP="`/sbin/uci get $UCI_IFPROP` $i"
+		fi
 	done
 }
 
