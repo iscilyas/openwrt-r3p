@@ -172,7 +172,7 @@ local debug = 0
     function wifi_reload(url) {
         window.scrollTo(0, 0);
         document.getElementById('loading').style.display="";
-        XHR.get(url, null,
+        XHR.post(url, null,
             function(x)
             {
                 console.log(x);
@@ -251,7 +251,7 @@ local debug = 0
 
         document.getElementById("loading").style.display="";
 
-        XHR.get('<%=luci.dispatcher.build_url("admin", "mtk", "wifi", "apcli_scan")%>/' + vifname, null,
+        XHR.post('<%=luci.dispatcher.build_url("admin", "mtk", "wifi", "apcli_scan")%>/' + vifname, null,
             function(x)
             {
                 console.log(x)

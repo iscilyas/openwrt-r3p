@@ -400,7 +400,7 @@ AA:BB:CC:DD:EE:FF
 function wifi_reload(url) {
     window.scrollTo(0, 0);
     document.getElementById('loading').style.display="";
-    XHR.get(url, null,
+    XHR.post(url, null,
         function(x)
         {
             console.log(x);

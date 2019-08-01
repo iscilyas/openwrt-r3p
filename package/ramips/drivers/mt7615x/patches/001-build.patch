@@ -1,7 +1,7 @@
-Index: mt7615e/mt_wifi/embedded/common/cmm_info.c
+Index: mt7615x/mt_wifi/embedded/common/cmm_info.c
 ===================================================================
---- mt7615e.orig/mt_wifi/embedded/common/cmm_info.c
-+++ mt7615e/mt_wifi/embedded/common/cmm_info.c
+--- mt7615x.orig/mt_wifi/embedded/common/cmm_info.c
++++ mt7615x/mt_wifi/embedded/common/cmm_info.c
 @@ -10690,6 +10690,7 @@
  	RTMP_CHIP_CAP *pChipCap = hc_get_chip_cap(pAd->hdev_ctrl);
  
@@ -35,10 +35,10 @@ Index: mt7615e/mt_wifi/embedded/common/cmm_info.c
  		if (HcGetRadioChannel(pAd) <= 14)
  			rfic = RFIC_24GHZ;
 
-Index: mt7615e/mt_wifi/os/linux/rt_proc.c
+Index: mt7615x/mt_wifi/os/linux/rt_proc.c
 ===================================================================
---- mt7615e.orig/mt_wifi/os/linux/rt_proc.c
-+++ mt7615e/mt_wifi/os/linux/rt_proc.c
+--- mt7615x.orig/mt_wifi/os/linux/rt_proc.c
++++ mt7615x/mt_wifi/os/linux/rt_proc.c
 @@ -29,7 +29,7 @@
  #include <linux/kernel.h>
  #include <linux/types.h>
@@ -48,10 +48,10 @@ Index: mt7615e/mt_wifi/os/linux/rt_proc.c
  
  #include "rt_config.h"
  
-Index: mt7615e/mt_wifi/os/linux/rt_linux.c
+Index: mt7615x/mt_wifi/os/linux/rt_linux.c
 ===================================================================
---- mt7615e.orig/mt_wifi/os/linux/rt_linux.c
-+++ mt7615e/mt_wifi/os/linux/rt_linux.c
+--- mt7615x.orig/mt_wifi/os/linux/rt_linux.c
++++ mt7615x/mt_wifi/os/linux/rt_linux.c
 @@ -803,7 +803,7 @@
  #else
  
@@ -99,10 +99,10 @@ Index: mt7615e/mt_wifi/os/linux/rt_linux.c
  
 
 
-Index: mt7615e/mt_wifi/os/linux/Makefile.mt_wifi_ap
+Index: mt7615x/mt_wifi/os/linux/Makefile.mt_wifi_ap
 ===================================================================
---- mt7615e.orig/mt_wifi/os/linux/Makefile.mt_wifi_ap
-+++ mt7615e/mt_wifi/os/linux/Makefile.mt_wifi_ap
+--- mt7615x.orig/mt_wifi/os/linux/Makefile.mt_wifi_ap
++++ mt7615x/mt_wifi/os/linux/Makefile.mt_wifi_ap
 @@ -13,7 +13,7 @@
  				-I$(WIFI_DRV_PATH)/mt_wifi/ate/include \
  				-I$(WIFI_DRV_PATH)/mt_wifi/include/mcu
@@ -113,10 +113,10 @@ Index: mt7615e/mt_wifi/os/linux/Makefile.mt_wifi_ap
  SRC_EMBEDDED_DIR = ../mt_wifi/embedded
  ifeq ($(CONFIG_SUPPORT_OPENWRT),y)
 
-Index: mt7615e/mt_wifi/embedded/common/ee_flash.c
+Index: mt7615x/mt_wifi/embedded/common/ee_flash.c
 ===================================================================
---- mt7615e.orig/mt_wifi/embedded/common/ee_flash.c
-+++ mt7615e/mt_wifi/embedded/common/ee_flash.c
+--- mt7615x.orig/mt_wifi/embedded/common/ee_flash.c
++++ mt7615x/mt_wifi/embedded/common/ee_flash.c
 @@ -30,6 +30,7 @@
  
  #include	"rt_config.h"
@@ -132,9 +132,9 @@ Index: mt7615e/mt_wifi/embedded/common/ee_flash.c
 -	flash_read(hdev_ctrl, p, a, b);
 +	//flash_read(hdev_ctrl, p, a, b);
 +	size_t retlen;
-+	struct mtd_info *mtd_info = get_mtd_device_nm("Factory");
++	struct mtd_info *mtd_info = get_mtd_device_nm("factory");
 +	if (IS_ERR(mtd_info) || mtd_info == NULL) {
-+		printk("ERROR: failed to find 'Factory' mtd partiton\n");
++		printk("ERROR: failed to find 'factory' mtd partiton\n");
 +		return;
 +	}
 +	mtd_read(mtd_info, a, b, &retlen, p);
@@ -149,9 +149,9 @@ Index: mt7615e/mt_wifi/embedded/common/ee_flash.c
 -	flash_write(hdev_ctrl, p, a, b);
 +	//flash_write(hdev_ctrl, p, a, b);
 +	size_t retlen;
-+	struct mtd_info *mtd_info = get_mtd_device_nm("Factory");
++	struct mtd_info *mtd_info = get_mtd_device_nm("factory");
 +	if (IS_ERR(mtd_info) || mtd_info == NULL) {
-+		printk("ERROR: failed to find 'Factory' mtd partiton\n");
++		printk("ERROR: failed to find 'factory' mtd partiton\n");
 +		return;
 +	}
 +	mtd_write(mtd_info, a, b, &retlen, p);
@@ -164,10 +164,10 @@ Index: mt7615e/mt_wifi/embedded/common/ee_flash.c
  
  static BOOLEAN rtmp_ee_init_check(struct _RTMP_ADAPTER *ad)
 
-Index: mt7615e/mt_wifi/chips/mt7615.c
+Index: mt7615x/mt_wifi/chips/mt7615.c
 ===================================================================
---- mt7615e.orig/mt_wifi/chips/mt7615.c
-+++ mt7615e/mt_wifi/chips/mt7615.c
+--- mt7615x.orig/mt_wifi/chips/mt7615.c
++++ mt7615x/mt_wifi/chips/mt7615.c
 @@ -39,13 +39,13 @@
  #endif
  
@@ -185,10 +185,10 @@ Index: mt7615e/mt_wifi/chips/mt7615.c
  #ifdef CONFIG_RT_THIRD_CARD
  #define THIRD_BIN_FILE "/etc_ro/wlan/MT7615E_EEPROM3.bin"
 
-Index: mt7615e/mt_wifi/os/linux/rt_profile.c
+Index: mt7615x/mt_wifi/os/linux/rt_profile.c
 ===================================================================
---- mt7615e.orig/mt_wifi/os/linux/rt_profile.c
-+++ mt7615e/mt_wifi/os/linux/rt_profile.c
+--- mt7615x.orig/mt_wifi/os/linux/rt_profile.c
++++ mt7615x/mt_wifi/os/linux/rt_profile.c
 @@ -98,13 +98,13 @@
  #define xdef_to_str(s)   def_to_str(s)
  #define def_to_str(s)    #s
@@ -208,10 +208,10 @@ Index: mt7615e/mt_wifi/os/linux/rt_profile.c
  
  #define SECOND_CHIP_ID	xdef_to_str(CONFIG_RT_SECOND_CARD)
 
-Index: mt7615e/mt_wifi/include/os/rt_linux.h
+Index: mt7615x/mt_wifi/include/os/rt_linux.h
 ===================================================================
---- mt7615e.orig/mt_wifi/include/os/rt_linux.h
-+++ mt7615e/mt_wifi/include/os/rt_linux.h
+--- mt7615x.orig/mt_wifi/include/os/rt_linux.h
++++ mt7615x/mt_wifi/include/os/rt_linux.h
 @@ -135,8 +135,8 @@
  #ifdef CONFIG_AP_SUPPORT
  #ifdef RTMP_MAC_PCI
@@ -244,10 +244,10 @@ Index: mt7615e/mt_wifi/include/os/rt_linux.h
  
  #endif /* CONFIG_AP_SUPPORT */
 
-Index: mt7615e/mt_wifi/embedded/include/l1profile.h
+Index: mt7615x/mt_wifi/embedded/include/l1profile.h
 ===================================================================
---- mt7615e.orig/mt_wifi/embedded/include/l1profile.h
-+++ mt7615e/mt_wifi/embedded/include/l1profile.h
+--- mt7615x.orig/mt_wifi/embedded/include/l1profile.h
++++ mt7615x/mt_wifi/embedded/include/l1profile.h
 @@ -1,7 +1,7 @@
  UCHAR l1profile_default[] = {
  "Default\n\
