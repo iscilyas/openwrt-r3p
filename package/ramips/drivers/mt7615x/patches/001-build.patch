@@ -108,7 +108,7 @@ Index: mt7615x/mt_wifi/os/linux/Makefile.mt_wifi_ap
  				-I$(WIFI_DRV_PATH)/mt_wifi/include/mcu
  
 -DRV_NAME = mt_wifi
-+DRV_NAME = mt7615e
++DRV_NAME = mt7615x
  SRC_DIR = ../mt_wifi
  SRC_EMBEDDED_DIR = ../mt_wifi/embedded
  ifeq ($(CONFIG_SUPPORT_OPENWRT),y)

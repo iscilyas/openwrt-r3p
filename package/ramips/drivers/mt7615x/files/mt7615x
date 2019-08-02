@@ -1,7 +1,7 @@
 #!/bin/sh /etc/rc.common
 
 START=99
-MODNAME=mt7615e
+MODNAME=mt7615x
 MOD_INTERFACES="ra0 rai0"
 UCI_IFPROP="network.lan.ifname"
 
@@ -31,6 +31,10 @@ start() {
 	do
 		/sbin/ifconfig $i up
 		/usr/sbin/brctl addif br-lan $i
+		if ! /sbin/uci get $UCI_IFPROP | grep -q $i
+		then
+			/sbin/uci set $UCI_IFPROP="`/sbin/uci get $UCI_IFPROP` $i"
+		fi
 	done
 }
 

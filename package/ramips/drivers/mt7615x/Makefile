@@ -44,7 +44,7 @@ TAR_CMD=$(HOST_TAR) -C $(1)/ $(TAR_OPTIONS)
 define KernelPackage/mt7615x
   CATEGORY:=MTK Properties
   TITLE:=MTK MT7615e wifi AP driver
-  FILES:=$(PKG_BUILD_DIR)/mt_wifi_ap/mt7615e.ko
+  FILES:=$(PKG_BUILD_DIR)/mt_wifi_ap/mt7615x.ko
   SUBMENU:=Drivers
   MENU:=1
 endef
@@ -71,7 +71,7 @@ endef
 WIRELESS_DIR=etc/wireless/mt7615e/
 define KernelPackage/mt7615x/install
 	$(INSTALL_DIR) $(1)/etc/init.d/
-	$(INSTALL_BIN) ./files/mt7615e $(1)/etc/init.d/
+	$(INSTALL_BIN) ./files/mt7615x $(1)/etc/init.d/
 	$(INSTALL_DIR) $(1)/lib/firmware/
 	$(INSTALL_BIN) ./files/mt7615e.eeprom.bin $(1)/lib/firmware/
 	$(INSTALL_DIR) $(1)/$(WIRELESS_DIR)

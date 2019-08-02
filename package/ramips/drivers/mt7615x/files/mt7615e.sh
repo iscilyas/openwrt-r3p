@@ -1,7 +1,7 @@
 #!/bin/sh /etc/rc.common
 
 START=99
-MODNAME=mt7615e
+MODNAME=mt7615x
 MOD_INTERFACES="ra0 rai0"
 UCI_IFPROP="network.lan.ifname"
 
